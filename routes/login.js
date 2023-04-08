@@ -1,47 +1,40 @@
 const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
+const User = require('../models/userModel')
+const joi=require('joi');
+const genToken = require('../utils/token');
 
-const Signup = require('../models/signup')
+const loginSchema=joi.object({
+    email:joi.string().email().required(),
+    password:joi.string().required().min(8)
+})
 
-router.post('/',(req,res)=>{
-    if(req.body.id=='' || req.body.pwd==''){
-        res.status(401).json({msg:'Invalid Request!'})
-    }
-    else{
-        const reqid = req.body.id
-    Signup.find({id:reqid})
-        .then(result=>{
-            if(result.length===0){
-                res.status(403).json({msg:'Ivalid Credentials!'})
-            }
-            else{
-                console.log(result)
-                const reqpwd = req.body.pwd
-                const user = result[0]
-                bcrypt.compare(reqpwd,user.pwd)
-                    .then(result=>{
-                        if(result===true){
-                            res.status(200).json({msg:'Authenticated',user:user.fname})
-                        }
-                        else{
-                            res.status(403).json({msg:'Invalid Credentials!'})
-                        }
-                    })
-                    .catch(err=>{
-                        try{
-                            res.status(500).json({info:'Internal Srver Error'})
-                        }
-                        catch{}
-                    })
-            }
-        })
-        .catch(err=>{
-            try{
-                res.status(500).json({info:'Internal Srver Error'})
-            }
-            catch{}
-        })
+router.post('/',async(req,res)=>{
+    try{
+        const {email,password}=req.body;
+        const {error}=loginSchema.validate({email,password});
+        if(error){
+            error=error.details[0].message.replace( /\"/g, "" );
+            return res.status(400).json({message:error});
+        }
+        const user=await User.findOne({email});
+
+        //if user exist and password matches
+        if(user && await bcrypt.compare(password,user.password)){
+            res.status(200).json({
+                firstName:user.firstName,
+                lastName:user.lastName,
+                email:user.email,
+                accountNo:user.accountNo,
+                token:await genToken(user)
+            })
+        }
+        else{
+            res.status(401).json({message:'Invalid Credentials'});
+        }
+    }catch(error){
+        res.status(500).json({message:'Internal Server Error'});
     }
 })
 

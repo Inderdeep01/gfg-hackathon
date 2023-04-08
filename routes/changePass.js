@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 
-const Signup = require('../models/signup')
+const Signup = require('../models/userModel')
 
 router.post('/',(req,res)=>{
     const reqid = req.body.id

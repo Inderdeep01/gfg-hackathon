@@ -1,5 +1,5 @@
 const express = require('express')
-const app = express()
+const app = express();
 require('dotenv').config()
 const morgan = require('morgan')
 const signupHandler = require('./routes/signup')

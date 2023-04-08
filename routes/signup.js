@@ -3,51 +3,43 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const genToken = require('../utils/token')
 const createWallet = require('../utils/createWallet')
+const User = require('../models/userModel');
+const joi=require('joi');
 
+const userSchema=joi.object({
+    firstName:joi.string().min(3).required(),
+    lastName:joi.string(),
+    email:joi.string().email().required(),
+    password:joi.string().min(8).required(),
+})
 
-const Signup = require('../models/signup')
-
-router.post('/',(req,res)=>{
-    if(req.body.id=='' || req.body.pwd==''){
-        res.status(401).json({msg:'Invalid Request!'})
+router.post('/',async(req,res)=>{
+    var {firstName,lastName,email,password}=req.body;
+    var {error}=await userSchema.validate({firstName,lastName,email,password});
+    if(error){
+        error=error.details[0].message.replace( /\"/g, "" );
+        return res.status(400).json({message:error});
     }
-    else{
-        const reqid = req.body.id
-    Signup.find({id:reqid})
-        .then(result=>{
-            if(result.length === 0){
-                bcrypt.hash(req.body.pwd,10).then(result=>{
-                    const reqpwd = result
-                    const wallet = createWallet(reqpwd)
-                    const addr = `0x${wallet[0].address.toUpperCase()}`
-                    const newUser = {
-                        id: reqid,
-                        pwd: reqpwd,
-                        fname: req.body.fname? req.body.fname : 'User',
-                        lname: req.body.lname,
-                        wallet: wallet,
-                        primaryAddr: addr
-                    }
-                    const user = new Signup(newUser)
-                    user.save()
-                        .then(async ()=>{
-                            const token = await genToken(newUser)
-                            res.status(201).json({msg:'Signup Successful!',token:token})
-                        })
-                        .catch(err=>res.status(500).json({msg:'Unexpected Error',error:err}))
-                })
-            }
-            else{
-                res.status(403).json({warning:'User already Exists!'})
-            }
-        })
-        .catch(err=>{
-            try{
-                res.status(500).json({msg:'Internal Server Error'})
-            }
-            catch{}
-        })
+
+    const userExist=await User.findOne({email});
+    if(userExist){
+        return res.status(409).json({message:'User already Exists'});
     }
+    const salt=await bcrypt.genSalt(10);
+    password=await bcrypt.hash(password,salt);
+
+    const wallet=createWallet(password);
+    const accountNo=`0x${wallet[0].address.toUpperCase()}`
+    const user=await User.create({
+        firstName,lastName,email,password,wallet,accountNo
+    })
+    res.status(201).json({
+        firstName:user.firstName,
+        lastName:user.lastName,
+        email:user.email,
+        accountNo:user.accountNo,
+        token:await genToken(user)
+    })
 })
 
 module.exports = router
