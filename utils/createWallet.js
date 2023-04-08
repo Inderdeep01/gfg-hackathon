@@ -1,6 +1,5 @@
 const web3 = require('./web3');
 function createWallet(pass){
-    console.log(web3);
     const wallet = web3.eth.accounts.wallet.create(1)
     const encrypted = wallet.encrypt(pass)
     wallet.clear()
