@@ -1,7 +1,7 @@
 const web3 = require('./web3')
 const Contracts = require('./contracts')
 
-// This function is invoked when user intends to transfer same currency
+// This function is invoked when user intends to settle in same currency
 /*
 Accepts 4 parameters :
 1. token : currency intended to settle payment in
@@ -24,8 +24,14 @@ const transfer = async(token,amount,sender,reciever)=>{
         gas: 1000000,
         data:data.encodeABI()
     }
-    const signedTx = await web3.eth.accounts.signTransaction(tx,sender.privateKey)
-    const txReceipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
-    return txReceipt
+    try{
+        const signedTx = await web3.eth.accounts.signTransaction(tx,sender.privateKey)
+        const txReceipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
+        if(txReceipt.status)
+            return {status:true,msg:"Transaction Completed!"}
+    }
+    catch{
+        return {status:false,msg:"Insufficient funds!"}
+    }
 }
 module.exports = transfer

@@ -1,6 +1,14 @@
 const web3 = require('./web3')
 const Contracts = require('./contracts')
 
+/* MINT utility function
+-> This function accepts 3 parameters:
+1. token: token to mint
+2. quantity: amount of tokens to mint
+3. reciever: address of the recipient
+-> It is an owner only contract and hence require us to import the account from private key of the owner.
+*/
+
 const mint = async(token,quantity,reciever)=>{
     const account = web3.eth.accounts.privateKeyToAccount(process.env.PRIVATE_KEY)
     const contract = Contracts.instances[token]

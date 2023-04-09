@@ -6,7 +6,7 @@ const signupHandler = require('./routes/signup')
 const loginHandler = require('./routes/login')
 const changePwdHandler = require('./routes/changePass')
 const delteHandler = require('./routes/delete')
-const transact=require('./routes/transact');
+const transact=require('./routes/transact')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
@@ -26,10 +26,8 @@ app.options('*',cors())
 app.use('/signup',signupHandler)
 app.use('/login',loginHandler)
 app.use('/changePwd',changePwdHandler)
-app.use('/delete',delteHandler);
-
-
-app.use('/transact',transact);
+app.use('/delete',delteHandler)
+app.use('/transact',transact)
 
 
 
