@@ -6,7 +6,12 @@ const userSchema = new mongoose.Schema({
     email: mongoose.Schema.Types.String,
     password: mongoose.Schema.Types.String,
     wallet: Object,
-    accountNo:String
+    accountNo: String,
+    cards: {type:Number, default:0},
+    currencies: [{
+        type: String,
+        default: 'INR'
+    }]
 },{
     timestamps:true
 })

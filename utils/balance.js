@@ -9,8 +9,13 @@ const Contracts = require('./contracts')
 
 const getBalance = async (token,user)=>{
     const contract = Contracts.instances[token]
-    const balance = await contract.methods.balanceOf(user.address).call()
-    return balance/1000000000000000000
+    let balance
+    try {
+        balance = await contract.methods.balanceOf(user.address).call()
+    } catch {
+        balance? balance/1000000000000000000 : 0
+    }
+    return balance
 }
 
 module.exports = getBalance
