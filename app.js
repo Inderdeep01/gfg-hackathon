@@ -8,7 +8,11 @@ const changePwdHandler = require('./routes/changePass')
 const delteHandler = require('./routes/delete')
 const transact=require('./routes/transact');
 const cors = require('cors')
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const authToken=require('./routes/authToken');
+
+
+
 const mongoose = require('mongoose')
 mongoose.set('strictQuery',true)
 
@@ -21,12 +25,13 @@ mongoose.connect(process.env.MONGOOSE)
     .then(console.log('Connection Successful'))
     .catch(err=>console.log(err))
 
-app.options('*',cors())
+app.options('*',cors());
 
 app.use('/signup',signupHandler)
 app.use('/login',loginHandler)
 app.use('/changePwd',changePwdHandler)
 app.use('/delete',delteHandler);
+app.use('/authToken',authToken);
 
 
 app.use('/transact',transact);
