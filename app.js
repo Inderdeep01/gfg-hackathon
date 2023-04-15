@@ -6,7 +6,8 @@ const signupHandler = require('./routes/signup')
 const loginHandler = require('./routes/login')
 const changePwdHandler = require('./routes/changePass')
 const delteHandler = require('./routes/delete')
-const transact=require('./routes/transact');
+const transact=require('./routes/transact')
+const cardHandler = require('./routes/card')
 const cors = require('cors')
 const bodyParser = require('body-parser');
 const authToken=require('./routes/authToken');
@@ -15,6 +16,7 @@ const authToken=require('./routes/authToken');
 
 const mongoose = require('mongoose')
 mongoose.set('strictQuery',true)
+const authToken=require('./routes/authToken');
 
 app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({extended:true}))
@@ -27,14 +29,14 @@ mongoose.connect(process.env.MONGOOSE)
 
 app.options('*',cors());
 
+app.use('/authToken',authToken);
 app.use('/signup',signupHandler)
 app.use('/login',loginHandler)
 app.use('/changePwd',changePwdHandler)
-app.use('/delete',delteHandler);
-app.use('/authToken',authToken);
-
-
+app.use('/delete',delteHandler)
 app.use('/transact',transact);
+app.use('/card',cardHandler)
+app.use('/transact',transact)
 
 
 

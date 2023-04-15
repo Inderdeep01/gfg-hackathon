@@ -1,5 +1,5 @@
 const web3 = require('../utils/web3')
-const account = web3.eth.accounts.privateKeyToAccount('8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63')
+const account = web3.eth.accounts.privateKeyToAccount(process.env.PRIVATE_KEY)
 const gas=async(req,res,next)=>{
     const balance=await web3.eth.getBalance(req.user.accountNo);
     if(balance>100000){
