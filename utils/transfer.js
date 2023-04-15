@@ -14,7 +14,7 @@ Accepts 4 parameters :
 4. reciever: address of the recipient
  */
 
-const transfer = async(token,amount,sender,reciever)=>{
+const transfer = async(token,amount,sender,reciever,card)=>{
     //const account = web3.eth.accounts.privateKeyToAccount(sender.privateKey)
     const contract = Contracts.instances[token]
     const data = contract.methods.transfer(reciever,`${amount}000000000000000000`)
@@ -28,7 +28,7 @@ const transfer = async(token,amount,sender,reciever)=>{
         const signedTx = await web3.eth.accounts.signTransaction(tx,sender.privateKey)
         const txReceipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
         if(txReceipt.status)
-            return {status:true,msg:"Transaction Completed!"}
+            return {status:true,msg:"Transaction Completed!",txReceipt:txReceipt}
     }
     catch{
         return {status:false,msg:"Insufficient funds!"}

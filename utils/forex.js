@@ -23,7 +23,7 @@ const getConversionRate = require('./getConversionRate')
 
 const forex = async (src,dst,amount,wallet,recipient)=>{
     const rate = getConversionRate(src,dst)
-    var burntx
+    let burntx
     try{
         burntx = await burn(src,amount,wallet)
     }
@@ -31,7 +31,7 @@ const forex = async (src,dst,amount,wallet,recipient)=>{
         return {status:false,msg:"Insufficient Funds!"}
     }
     if(burntx.status){
-        var minttx
+        let minttx
         try{
             minttx = await mint(dst,amount*rate | 0,recipient)
         }
@@ -39,7 +39,7 @@ const forex = async (src,dst,amount,wallet,recipient)=>{
             return {status: false,msg:"Unable to complete the transaction! Please check your input"}
         }
         if(minttx.status){
-            return {status:true}
+            return {status:true,txReceipt: minttx}
         }
         else
             return {status:false}
