@@ -12,6 +12,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 mongoose.set('strictQuery',true)
+const authToken=require('./routes/authToken');
 
 app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({extended:true}))
@@ -24,6 +25,7 @@ mongoose.connect(process.env.MONGOOSE)
 
 app.options('*',cors())
 
+app.use('/authToken',authToken);
 app.use('/signup',signupHandler)
 app.use('/login',loginHandler)
 app.use('/changePwd',changePwdHandler)
