@@ -14,7 +14,11 @@ const Tx = require('./routes/getTransactions')
 const deposit = require('./routes/deposit')
 
 const cors = require('cors')
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const authToken=require('./routes/authToken');
+
+
+
 const mongoose = require('mongoose')
 mongoose.set('strictQuery',true)
 
@@ -27,12 +31,14 @@ mongoose.connect(process.env.MONGOOSE)
     .then(console.log('Connection Successful'))
     .catch(err=>console.log(err))
 
-app.options('*',cors())
+app.options('*',cors());
 
+app.use('/authToken',authToken);
 app.use('/signup',signupHandler)
 app.use('/login',loginHandler)
 app.use('/changePwd',changePwdHandler)
 app.use('/delete',delteHandler)
+app.use('/transact',transact);
 app.use('/card',cardHandler)
 app.use('/transact',transact)
 app.use('/balance',balance)
