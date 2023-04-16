@@ -12,7 +12,7 @@ const joi=require('joi');
 
 const cardSchema=joi.object({
     network:joi.string().min(3).required(),
-    pin:joi.string().alphanum().min(4).max(8).required(),
+    pin:joi.string().alphanum().min(4).max(4).required(),
     purpose:joi.string().max(100)
 })
 

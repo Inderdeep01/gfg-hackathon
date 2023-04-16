@@ -26,7 +26,8 @@ router.post('/',async(req,res)=>{
                 lastName:user.lastName,
                 email:user.email,
                 accountNo:user.accountNo,
-                token:await genToken(user)
+                token:await genToken(user),
+                _id:user._id
             })
         }
         else{
