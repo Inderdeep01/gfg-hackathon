@@ -4,9 +4,27 @@ const bcrypt = require('bcrypt')
 const protect=require('../middleware/protect')
 // utility functions
 const generateCard = require('../utils/generateCard')
+const genCardToken = require('../utils/cardToken')
 // models
 const Card = require('../models/cardModel')
 const User = require('../models/userModel')
+const joi=require('joi');
+
+const cardSchema=joi.object({
+    network:joi.string().min(3).required(),
+    pin:joi.string().alphanum().min(4).max(4).required(),
+    purpose:joi.string().max(100)
+})
+
+const changePINSchema = joi.object({
+    oldPin:joi.string().alphanum().min(4).max(8).required(),
+    newPin:joi.string().alphanum().min(4).max(8).required(),
+    cardNumber:joi.string().min(16).max(16).required()
+})
+
+const PINSchema = joi.object({
+    pin:joi.string().alphanum().min(4).max(8).required()
+})
 
 // get request returns information of all cards associated with the user
 router.get('/',protect,async (req,res)=>{
@@ -16,88 +34,135 @@ router.get('/',protect,async (req,res)=>{
 
 // detailed information of a card
 router.get('/:cardNumber',protect,async (req,res)=>{
-    const card = await Card.find({cardNumber: req.params.cardNumber})
+    const card = await Card.find({$and:[{cardNumber: req.params.cardNumber,user: req.user._id}]})
     return res.status(200).json(card)
 })
 
 // generate a new card
 router.post('/',protect,async (req,res)=>{
+    //console.log(req.user)
+    const {network,pin,purpose} = req.body
+    let {error} = await cardSchema.validate({network,pin,purpose})
+    if(error){
+        error=error.details[0].message.replace( /\"/g, "" ).toUpperCase()
+        return res.status(400).json({message:error})
+    }
     const user = await User.findById(req.user._id)
     if(user && user.cards<5){
-        const encryptedPIN = await bcrypt.hash(req.body.pin,10)
-        const cardDetails = generateCard(req.body.network)
+        const encryptedPIN = await bcrypt.hash(pin,10)
+        const cardDetails = generateCard(network)
         const card = new Card({
             ...cardDetails,
             pin: encryptedPIN,
-            purpose: req.body.purpose,
-            user: req.user._id
+            purpose: purpose,
+            user: [req.user._id]
         })
         await card.save()
-        await User.findByIdAndUpdate(req.user._id,{cards:user.cards+1})
-        return res.status(201).json({msg:'New Card generated Successfuly',card:{...cardDetails,purpose:req.body.purpose}})
+        user.cards = user.cards+1
+        const cardToken = await genCardToken(card)
+        //console.log(cardToken)
+        await user.save()
+        return res.status(201).json({message:'New Card generated Successfuly',card:{...cardDetails,purpose:req.body.purpose,token:cardToken}})
     }
     else if(!user){
-        return res.status(401).json({msg:'You are not authorised to perform this action'})
+        return res.status(401).json({message:'You are not authorised to perform this action'})
     }
     else{
-        return res.status(403).json({msg:'You cannot create more than 5 cards'})
+        return res.status(403).json({message:'You cannot create more than 5 cards'})
     }
 })
 
 // update status of a card
 router.patch('/',protect,async (req,res)=>{
     const salt = await bcrypt.genSalt(10)
-    let card = await Card.find({$and:[{cardNumber: req.body.cardNumber,user: req.user._id}]})
+    const {oldPin,newPin,cardNumber,newHolder,pin} = req.body
+    let card = await Card.find({$and:[{cardNumber: cardNumber,user: req.user._id}]})
     card = card[0]
     //console.log(card)
     if(card && req.body.action==='changePIN'){
-        const matched = await bcrypt.compare(req.body.oldPin,card.pin)
+        let {error} = await changePINSchema.validate({oldPin,newPin,cardNumber})
+        if(error){
+            error=error.details[0].message.replace( /\"/g, "" ).toUpperCase()
+            return res.status(400).json({message:error})
+        }
+        const matched = await bcrypt.compare(oldPin,card.pin)
         if(matched){
-            if(req.body.oldPin===req.body.newPin){
-                return res.status(400).json({msg:'New PIN can not be same as old PIN'})
+            if(oldPin===newPin){
+                return res.status(400).json({message:'New PIN can not be same as old PIN'})
             }
-            const newPin = await bcrypt.hash(req.body.newPin,salt)
+            const encryptedPin = await bcrypt.hash(newPin,salt)
             //await card.update({pin: newPin})
-            card.pin = newPin
+            card.pin = encryptedPin
             await card.save()
-            return res.status(200).json({msg:'PIN updated successfuly'})
+            const cardToken = await genCardToken(card._doc)
+            return res.status(200).json({message:'PIN updated successfuly',token:cardToken})
         }
         else
-            return res.status(400).json({msg:'Old PIN mismatch'})
+            return res.status(400).json({message:'Old PIN mismatch'})
     }
     else if(card && req.body.action==='block'){
         if(card.isBlocked)
-            return res.status(400).json({msg:'Card Already Blocked!'})
+            return res.status(400).json({message:'Card Already Blocked!'})
         card.isBlocked = true
         await card.save()
-        return res.status(200).json({msg:'Card Blocked successfuly'})
+        const cardToken = await genCardToken(card._doc)
+        return res.status(200).json({message:'Card Blocked successfuly',token:cardToken})
     }
     else if(card && req.body.action==='unblock'){
         if(!card.isBlocked)
-            return res.status(400).json({msg:'Card Not Blocked!'})
+            return res.status(400).json({message:'Card Not Blocked!'})
         card.isBlocked = false
         await card.save()
-        return res.status(200).json({msg:'Card Unblocked successfuly!'})
+        const cardToken = await genCardToken(card._doc)
+        return res.status(200).json({message:'Card Unblocked successfuly!',token:cardToken})
     }
     else if(card && req.body.action==='setLimit'){
         if(card.limit===req.body.limit)
-            return res.status(400).json({msg:'Limit already set to the specified value'})
+            return res.status(400).json({message:'Limit already set to the specified value'})
         card.limit = req.body.limit
         await card.save()
-        return res.status(200).json({msg:'Card Limit Updated successfuly!'})
+        const cardToken = await genCardToken(card._doc)
+        return res.status(200).json({message:'Card Limit Updated successfuly!',token:cardToken})
     }
     else if(card && req.body.action==='setInternationalLimit'){
         if(card.internationalLimit===req.body.internationalLimit)
-            return res.status(400).json({msg:'Limit already set to the specified value'})
+            return res.status(400).json({message:'Limit already set to the specified value'})
         card.internationalLimit = req.body.internationalLimit
         await card.save()
-        return res.status(200).json({msg:'Card Limit Updated successfuly!'})
+        const cardToken = await genCardToken(card._doc)
+        return res.status(200).json({message:'Card Limit Updated successfuly!',token:cardToken})
+    }
+    else if(card && req.body.action==='addHolder'){
+        if(req.user.accountNo===newHolder)
+            return res.status(400).json({message:'You cannot add yourself as additional holder!'})
+        const user = await User.findOne({accountNo:newHolder})
+        let {error} = await PINSchema.validate({pin})
+        if(error){
+            error=error.details[0].message.replace( /\"/g, "" ).toUpperCase()
+            return res.status(400).json({message:error})
+        }
+        const matched = await bcrypt.compare(pin,card.pin)
+        if(!matched)
+            return res.status(400).json({message:'PIN mismatch!'})
+        if(user && card.user.includes(user._id))
+            return res.status(400).json({message:'Holder already added for this card'})
+        //const user = await User.findById(req.body.newHolder)
+        if(user && user.cards<5){
+            user.cards = user.cards+1
+            card.user.push(user._id)
+            await card.save()
+            await user.save()
+            const cardToken = await genCardToken(card._doc)
+            return res.status(200).json({message:'Joint Holder added successfuly',token:cardToken})
+        }
+        else
+            return res.status(400).json({message:'Invalid Joint Card Holder!'})
     }
     else if (card){
-        return res.status(400).json({msg:'Undefined Action'})
+        return res.status(400).json({message:'Undefined Action'})
     }
     else{
-        return res.status(400).json({msg:'No matching card found!'})
+        return res.status(400).json({message:'No matching card found!'})
     }
 })
 
@@ -107,11 +172,15 @@ router.delete('/',protect,async (req,res)=>{
     if(card){
         await card.remove()
         await User.findByIdAndUpdate(req.user._id,{cards:req.user.cards-1})
-        return res.status(200).json({msg:'Card Deleted!'})
+        return res.status(200).json({message:'Card Deleted!'})
     }
     else{
-        return res.status(400).json({msg:'No matching card found!'})
+        return res.status(400).json({message:'No matching card found!'})
     }
+})
+
+router.all('/',(req,res)=>{
+    res.status(405).json({message:'This method is not alowed on this route'})
 })
 
 module.exports = router

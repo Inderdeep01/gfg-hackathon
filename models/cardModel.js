@@ -17,11 +17,11 @@ const cardSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    user: {
+    user: [{
         type: mongoose.Types.ObjectId,
         required: true,
         ref: 'User'
-    },
+    }],
     purpose: {
         type: String,
         default: 'Debit Card'
