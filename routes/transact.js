@@ -2,8 +2,10 @@ const express=require('express')
 const router=express.Router()
 const protect=require('../middleware/protect')
 const gas=require('../middleware/gas')
+
 const card=require('../middleware/card');
 const mongoose = require('mongoose')
+
 
 const transfer = require('../utils/transfer')
 const forex = require('../utils/forex')
@@ -49,7 +51,7 @@ router.post('/',protect,card,gas,async (req,res)=>{
         if(req.card.limit<req.body.amount)
             txObj.message = 'Insufficient Card Limit'
         else{
-            const pass = await bcrypt.compare(req.card.pin,req.body.pin)
+            const pass = await bcrypt.compare(req.body.pin,req.card.pin)
             if(!pass)
                 return res.status(400).json({message:'Incorrect PIN!'})
             txObj = await transfer(req.body.destinationToken,req.body.amount,wallet,req.body.recipient,req.card._id)
@@ -65,10 +67,10 @@ router.post('/',protect,card,gas,async (req,res)=>{
         if(req.card.limit<req.body.amount)
             txObj.message = 'Insufficient Card Limit'
         else{
-            const pass = await bcrypt.compare(req.card.pin,req.body.pin)
+            const pass = await bcrypt.compare(req.body.pin,req.card.pin)
             if(!pass)
                 return res.status(400).json({message:'Incorrect PIN!'})
-            txObj = await forex(req.body.sourceToken,req.body.destinationToken,req.body.amount,wallet,req.body.recipient)
+            txObj = await forex(req.body.sourceToken,req.body.destinationToken,req.body.amount,wallet,req.body.recipient,req.card._id)
             txObj.from = req.user._id
             txObj.amount = req.body.amount
             txObj.currency = req.body.destinationToken

@@ -33,7 +33,8 @@ const transactionSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    reason: String
+    reason: String,
+    type: String
 },{
     timestamps: true
 })
