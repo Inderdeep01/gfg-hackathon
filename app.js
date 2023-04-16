@@ -8,6 +8,9 @@ const changePwdHandler = require('./routes/changePass')
 const delteHandler = require('./routes/delete')
 const transact=require('./routes/transact')
 const cardHandler = require('./routes/card')
+const userDetails = require('./routes/userDetail')
+const balance = require('./routes/getBalance')
+
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
@@ -30,6 +33,8 @@ app.use('/changePwd',changePwdHandler)
 app.use('/delete',delteHandler)
 app.use('/card',cardHandler)
 app.use('/transact',transact)
+app.use('/balance',balance)
+app.use('/details',userDetails)
 
 
 

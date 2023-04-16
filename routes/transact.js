@@ -2,6 +2,8 @@ const express=require('express')
 const router=express.Router()
 const protect=require('../middleware/protect')
 const gas=require('../middleware/gas')
+const card = require('../middleware/card')
+const mongoose = require('mongoose')
 
 const transfer = require('../utils/transfer')
 const forex = require('../utils/forex')
@@ -25,6 +27,10 @@ router.post('/',protect,card,gas,async (req,res)=>{
     if(type && type==='simpleTransfer'){
         // refer to 'transfer' function [simpleTransfer]
         txObj = await transfer(req.body.destinationToken,req.body.amount,wallet,req.body.recipient)
+        txObj.from = req.user._id,
+        //txObj.to = req.body.recipient,
+        txObj.amount = req.body.amount,
+        txObj.currency = req.body.destinationToken
         const tx = new Tx(txObj)
         await tx.save()
     }
@@ -56,6 +62,10 @@ router.post('/',protect,card,gas,async (req,res)=>{
         statusCode = 200
     return res.status(statusCode).json({txObj})
     
+})
+
+router.all('/',(req,res)=>{
+    res.status(405).json({message:'This method is not alowed on this route'})
 })
 
 module.exports=router;
