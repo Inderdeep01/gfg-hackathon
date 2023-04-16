@@ -11,7 +11,7 @@ router.post('/',protect,gas,async (req,res)=>{
     const user = await User.findOne({accountNo:req.user.accountNo})
     const {token,amount} = req.body
     let txObj = {status:false}
-    //try {
+    try {
         minttx = await mint(token,amount,req.user.accountNo)
         txObj.to = user._id
         txObj.from = mongoose.Types.ObjectId(0)
@@ -28,9 +28,9 @@ router.post('/',protect,gas,async (req,res)=>{
             await user.save()
         }
         return res.sendStatus(200)
-    //} catch (error) {
-    //    return res.sendStatus(400)
-    //}
+    } catch (error) {
+        return res.sendStatus(400)
+    }
 })
 
 router.all('/',(req,res)=>{
