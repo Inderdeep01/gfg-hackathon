@@ -18,6 +18,16 @@ router.get('/',protect,async (req,res)=>{
     return res.status(200).json(txs)
 })
 
+router.get('/card',protect,async (req,res)=>{
+    const txs = await Tx.find({$and:[{from:req.user._id},{card:req.body._id}]}).sort({createdAt:-1})
+        .skip((page-1)*perPage)
+        .limit(perPage).populate([
+            {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
+            {path:'card',select:'cardNumber expiry cvv network'}
+        ])
+    return res.status(200).json(txs)
+})
+
 router.all('/',(req,res)=>{
     res.status(405).json({message:'This method is not alowed on this route'})
 })
