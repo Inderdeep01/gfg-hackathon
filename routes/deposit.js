@@ -20,7 +20,6 @@ router.post('/',protect,gas,async (req,res)=>{
         txObj.type = 'Deposit'
         txObj.status = true
         const tx = new Tx(txObj)
-        console.log("work");
         let x = await tx.save()
         console.log(x);
         if(!user.currencies.includes(token)){
