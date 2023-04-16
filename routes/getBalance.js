@@ -12,8 +12,9 @@ router.get('/',protect,async(req,res)=>{
     let wallet = await decryptWallet(user)
     const balances = await user.currencies.map(async (currency)=>{
         let x = {}
-        x[currency] = await getBalance(currency,wallet)
-        return x
+        x['currency']=currency;
+        x['balance'] = await getBalance(currency,wallet);
+
     })
     let x = await Promise.all(balances)
     console.log(x)
