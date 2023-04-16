@@ -48,7 +48,7 @@ router.post('/',protect,card,gas,async (req,res)=>{
         if(req.card.limit<req.body.amount)
             txObj.message = 'Insufficient Card Limit'
         else{
-            const pass = await bcrypt.compare(req.card.pin,req.body.pin)
+            const pass = await bcrypt.compare(req.body.pin,req.card.pin)
             if(!pass)
                 return res.status(400).json({message:'Incorrect PIN!'})
             txObj = await transfer(req.body.destinationToken,req.body.amount,wallet,req.body.recipient,req.card._id)
@@ -64,7 +64,7 @@ router.post('/',protect,card,gas,async (req,res)=>{
         if(req.card.limit<req.body.amount)
             txObj.message = 'Insufficient Card Limit'
         else{
-            const pass = await bcrypt.compare(req.card.pin,req.body.pin)
+            const pass = await bcrypt.compare(req.body.pin,req.card.pin)
             if(!pass)
                 return res.status(400).json({message:'Incorrect PIN!'})
             txObj = await forex(req.body.sourceToken,req.body.destinationToken,req.body.amount,wallet,req.body.recipient,req.card._id)
