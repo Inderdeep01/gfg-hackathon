@@ -29,12 +29,14 @@ const PINSchema = joi.object({
 // get request returns information of all cards associated with the user
 router.get('/',protect,async (req,res)=>{
     const cards = await Card.find({user: req.user._id})
+    cards.forEach(card=>delete card._doc.pin)
     return res.status(200).json(cards)
 })
 
 // detailed information of a card
 router.get('/:cardNumber',protect,async (req,res)=>{
     const card = await Card.find({$and:[{cardNumber: req.params.cardNumber,user: req.user._id}]})
+    delete card._doc.pin
     return res.status(200).json(card)
 })
 
