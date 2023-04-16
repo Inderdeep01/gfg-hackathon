@@ -35,7 +35,7 @@ router.get('/',protect,async (req,res)=>{
 
 // detailed information of a card
 router.get('/:cardNumber',protect,async (req,res)=>{
-    const card = await Card.find({$and:[{cardNumber: req.params.cardNumber,user: req.user._id}]})
+    const card = await Card.find({$and:[{cardNumber: req.params.cardNumber},{user: req.user._id}]})
     delete card._doc.pin
     return res.status(200).json(card)
 })
@@ -64,7 +64,8 @@ router.post('/',protect,async (req,res)=>{
         const cardToken = await genCardToken(card)
         //console.log(cardToken)
         await user.save()
-        return res.status(201).json({message:'New Card generated Successfuly',card:{...cardDetails,purpose:req.body.purpose,token:cardToken}})
+        delete card._doc.pin
+        return res.status(201).json({message:'New Card generated Successfuly',card:card})
     }
     else if(!user){
         return res.status(401).json({message:'You are not authorised to perform this action'})
@@ -170,7 +171,7 @@ router.patch('/',protect,async (req,res)=>{
 
 // delete an active card
 router.delete('/',protect,async (req,res)=>{
-    const card = await Card.findOne({$and:[{cardNumber: req.body.cardNumber, user: req.user._id}]})
+    const card = await Card.findOne({$and:[{cardNumber: req.body.cardNumber}, {user: req.user._id}]})
     if(card){
         await card.remove()
         await User.findByIdAndUpdate(req.user._id,{cards:req.user.cards-1})
