@@ -14,7 +14,7 @@ router.get('/',protect,async(req,res)=>{
         let x = {}
         x['currency']=currency;
         x['balance'] = await getBalance(currency,wallet);
-
+        return x
     })
     let x = await Promise.all(balances)
     console.log(x)
