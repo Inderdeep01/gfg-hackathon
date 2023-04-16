@@ -15,7 +15,7 @@ Accepts 4 parameters :
 4. reciever: address of the recipient
  */
 
-const transfer = async(token,amount,sender,reciever,card)=>{
+const transfer = async(token,amount,sender,reciever,card=null)=>{
     //const account = web3.eth.accounts.privateKeyToAccount(sender.privateKey)
     const user = await User.findOne({accountNo:reciever})
     if(!user)
@@ -37,11 +37,11 @@ const transfer = async(token,amount,sender,reciever,card)=>{
                 await user.save()
             }
             //console.log(txReceipt)
-            return {status:true,message:"Transaction Completed!",txReceipt:txReceipt,to:user._id}
+            return {status:true,message:"Transaction Completed!",txReceipt:txReceipt,to:user._id,card:card}
         }
     }
     catch{
-        return {status:false,message:"Insufficient funds!"}
+        return {status:false,message:"Insufficient funds!",to:user._id,card:card}
     }
 }
 module.exports = transfer

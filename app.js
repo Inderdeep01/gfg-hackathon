@@ -10,6 +10,7 @@ const transact=require('./routes/transact')
 const cardHandler = require('./routes/card')
 const userDetails = require('./routes/userDetail')
 const balance = require('./routes/getBalance')
+const Tx = require('./routes/getTransactions')
 
 const cors = require('cors')
 const bodyParser = require('body-parser')
@@ -34,6 +35,7 @@ app.use('/delete',delteHandler)
 app.use('/card',cardHandler)
 app.use('/transact',transact)
 app.use('/balance',balance)
+app.use('/getTx',Tx)
 app.use('/details',userDetails)
 
 

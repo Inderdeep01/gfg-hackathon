@@ -60,7 +60,7 @@ router.post('/',protect,card,gas,async (req,res)=>{
     let statusCode = 500
     if(txObj.status)
         statusCode = 200
-    return res.status(statusCode).json({txObj})
+    return res.status(statusCode).json(txObj)
     
 })
 
