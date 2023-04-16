@@ -12,7 +12,7 @@ const loginSchema=joi.object({
 
 router.post('/',async(req,res)=>{
         const {email,password}=req.body;
-        const {error}=loginSchema.validate({email,password});
+        var {error}=loginSchema.validate({email,password});
         if(error){
             error=error.details[0].message.replace( /\"/g, "" );
             return res.status(400).json({message:error});

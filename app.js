@@ -16,7 +16,6 @@ const authToken=require('./routes/authToken');
 
 const mongoose = require('mongoose')
 mongoose.set('strictQuery',true)
-const authToken=require('./routes/authToken');
 
 app.use(morgan('dev'))
 app.use(bodyParser.urlencoded({extended:true}))

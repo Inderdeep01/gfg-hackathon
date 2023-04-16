@@ -2,7 +2,7 @@ const express=require('express')
 const router=express.Router()
 const protect=require('../middleware/protect')
 const gas=require('../middleware/gas')
-
+const card=require('../middleware/card')
 const transfer = require('../utils/transfer')
 const forex = require('../utils/forex')
 //const cardTransfer
