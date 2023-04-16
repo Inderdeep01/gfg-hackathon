@@ -1,6 +1,7 @@
 const mint = require('./mint')
 const burn = require('./burn')
 const getConversionRate = require('./getConversionRate')
+const User = require('../models/userModel')
 
 /* FOREX utility function
 -> This function is used for settlement in currency other than the originating currency
@@ -21,14 +22,17 @@ const getConversionRate = require('./getConversionRate')
 4. Return the transaction reciept
 */
 
-const forex = async (src,dst,amount,wallet,recipient)=>{
+const forex = async (src,dst,amount,wallet,recipient,card=null)=>{
+    const user = await User.findOne({accountNo:recipient})
+    if(!user)
+        return {status:false,message:'Please check the account Number'}
     const rate = getConversionRate(src,dst)
     let burntx
     try{
         burntx = await burn(src,amount,wallet)
     }
     catch{
-        return {status:false,msg:"Insufficient Funds!"}
+        return {status:false,message:"Insufficient Funds!",to:user._id,card:card}
     }
     if(burntx.status){
         let minttx
@@ -36,16 +40,20 @@ const forex = async (src,dst,amount,wallet,recipient)=>{
             minttx = await mint(dst,amount*rate | 0,recipient)
         }
         catch{
-            return {status: false,msg:"Unable to complete the transaction! Please check your input"}
+            return {status: false,message:"Unable to complete the transaction! Please check your input"}
         }
         if(minttx.status){
-            return {status:true,txReceipt: minttx}
+            if(!user.currencies.includes(dst)){
+                user.currencies.push(dst)
+                await user.save()
+            }
+            return {status:true,txReceipt: minttx,to:user._id,card:card}
         }
         else
-            return {status:false}
+            return {status:false,to:user._id,card:card}
     }
     else
-        return {status: false}
+        return {status: false,to:user._id,card:card}
 }
 
 module.exports = forex

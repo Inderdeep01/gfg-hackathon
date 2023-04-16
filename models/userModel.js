@@ -8,10 +8,10 @@ const userSchema = new mongoose.Schema({
     wallet: Object,
     accountNo: String,
     cards: {type:Number, default:0},
-    currencies: [{
-        type: String,
-        default: 'INR'
-    }]
+    currencies: {
+        type: Array,
+        default:['INR']
+    }
 },{
     timestamps:true
 })

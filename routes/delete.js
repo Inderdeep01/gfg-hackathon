@@ -9,4 +9,8 @@ router.delete('/',protect,(req,res)=>{
         .catch(err=>res.sendStatus(500))
 })
 
+router.all('/',(req,res)=>{
+    res.status(405).json({message:'This method is not alowed on this route'})
+})
+
 module.exports = router

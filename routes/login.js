@@ -26,12 +26,17 @@ router.post('/',async(req,res)=>{
                 lastName:user.lastName,
                 email:user.email,
                 accountNo:user.accountNo,
-                token:await genToken(user)
+                token:await genToken(user),
+                _id:user._id
             })
         }
         else{
             res.status(401).json({message:'Invalid Credentials'});
         }
+})
+
+router.all('/',(req,res)=>{
+    res.status(405).json({message:'This method is not alowed on this route'})
 })
 
 module.exports = router

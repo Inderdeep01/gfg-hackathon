@@ -8,6 +8,10 @@ const changePwdHandler = require('./routes/changePass')
 const delteHandler = require('./routes/delete')
 const transact=require('./routes/transact')
 const cardHandler = require('./routes/card')
+const userDetails = require('./routes/userDetail')
+const balance = require('./routes/getBalance')
+const Tx = require('./routes/getTransactions')
+
 const cors = require('cors')
 const bodyParser = require('body-parser');
 const authToken=require('./routes/authToken');
@@ -36,6 +40,9 @@ app.use('/delete',delteHandler)
 app.use('/transact',transact);
 app.use('/card',cardHandler)
 app.use('/transact',transact)
+app.use('/balance',balance)
+app.use('/getTx',Tx)
+app.use('/details',userDetails)
 
 
 
