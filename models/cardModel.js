@@ -17,6 +17,11 @@ const cardSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    owner: {
+        type: mongoose.Types.ObjectId,
+        required: true,
+        ref: 'User'
+    },
     user: [{
         type: mongoose.Types.ObjectId,
         required: true,
@@ -37,11 +42,11 @@ const cardSchema = new mongoose.Schema({
     },
     limit: {
         type: Number,
-        default: 0
+        default: 100000
     },
     internationalLimit: {
         type: Number,
-        default: 0
+        default: 10000
     }
 })
 

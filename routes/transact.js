@@ -49,7 +49,9 @@ router.post('/',protect,card,gas,async (req,res)=>{
         await tx.save()
     }
     else if(type && type==='card'){
-        if(req.card.limit<req.body.amount)
+        if(req.card.isBlocked)
+            txObj.message = 'This card is Blocked!'
+        else if(req.card.limit<req.body.amount)
             txObj.message = 'Insufficient Card Limit'
         else{
             const pass = await bcrypt.compare(req.body.pin,req.card.pin)
@@ -65,7 +67,9 @@ router.post('/',protect,card,gas,async (req,res)=>{
         }
     }
     else if(type && type==='cardForex'){
-        if(req.card.limit<req.body.amount)
+        if(req.card.isBlocked)
+            txObj.message = 'This card is Blocked!'
+        else if(req.card.limit<req.body.amount)
             txObj.message = 'Insufficient Card Limit'
         else{
             const pass = await bcrypt.compare(req.body.pin,req.card.pin)

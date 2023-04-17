@@ -16,8 +16,8 @@ const cardSchema=joi.object({
 })
 
 const changePINSchema = joi.object({
-    oldPin:joi.string().alphanum().min(4).max(8).required(),
-    newPin:joi.string().alphanum().min(4).max(8).required(),
+    oldPin:joi.string().alphanum().min(4).max(4).required(),
+    newPin:joi.string().alphanum().min(4).max(4).required(),
     cardNumber:joi.string().min(16).max(16).required()
 })
 
@@ -56,7 +56,8 @@ router.post('/',protect,async (req,res)=>{
             ...cardDetails,
             pin: encryptedPIN,
             purpose: purpose,
-            user: [req.user._id]
+            user: [req.user._id],
+            owner: req.user._id
         })
         card = await card.save()
         user.cards = user.cards+1
@@ -80,6 +81,9 @@ router.patch('/',protect,async (req,res)=>{
     card = card[0]
     //console.log(card)
     if(card && req.body.action==='changePIN'){
+        //console.log(card,req.user,card.owner===req.user._id,card.owner==req.user._id)
+        if(card.owner!=req.user._id)
+            return res.status(401).json({message:'Only owner can perform this action!'})
         let {error} = await changePINSchema.validate({oldPin,newPin,cardNumber})
         if(error){
             error=error.details[0].message.replace( /\"/g, "" ).toUpperCase()
@@ -100,6 +104,8 @@ router.patch('/',protect,async (req,res)=>{
             return res.status(400).json({message:'Old PIN mismatch'})
     }
     else if(card && req.body.action==='block'){
+        if(card.owner!=req.user._id)
+            return res.status(401).json({message:'Only owner can perform this action!'})
         if(card.isBlocked)
             return res.status(400).json({message:'Card Already Blocked!'})
         card.isBlocked = true
@@ -107,6 +113,8 @@ router.patch('/',protect,async (req,res)=>{
         return res.status(200).json({message:'Card Blocked successfuly'})
     }
     else if(card && req.body.action==='unblock'){
+        if(card.owner!=req.user._id)
+            return res.status(401).json({message:'Only owner can perform this action!'})
         if(!card.isBlocked)
             return res.status(400).json({message:'Card Not Blocked!'})
         card.isBlocked = false
@@ -114,6 +122,8 @@ router.patch('/',protect,async (req,res)=>{
         return res.status(200).json({message:'Card Unblocked successfuly!'})
     }
     else if(card && req.body.action==='setLimit'){
+        if(card.owner!=req.user._id)
+            return res.status(401).json({message:'Only owner can perform this action!'})
         if(card.limit===req.body.limit)
             return res.status(400).json({message:'Limit already set to the specified value'})
         card.limit = req.body.limit
@@ -121,6 +131,8 @@ router.patch('/',protect,async (req,res)=>{
         return res.status(200).json({message:'Card Limit Updated successfuly!'})
     }
     else if(card && req.body.action==='setInternationalLimit'){
+        if(card.owner!=req.user._id)
+            return res.status(401).json({message:'Only owner can perform this action!'})
         if(card.internationalLimit===req.body.internationalLimit)
             return res.status(400).json({message:'Limit already set to the specified value'})
         card.internationalLimit = req.body.internationalLimit
@@ -128,6 +140,8 @@ router.patch('/',protect,async (req,res)=>{
         return res.status(200).json({message:'Card Limit Updated successfuly!'})
     }
     else if(card && req.body.action==='addHolder'){
+        if(card.owner!=req.user._id)
+            return res.status(401).json({message:'Only owner can perform this action!'})
         if(req.user.accountNo===newHolder)
             return res.status(400).json({message:'You cannot add yourself as additional holder!'})
         const user = await User.findOne({accountNo:newHolder})
@@ -161,8 +175,8 @@ router.patch('/',protect,async (req,res)=>{
 })
 
 // delete an active card
-router.delete('/',protect,async (req,res)=>{
-    const card = await Card.findOne({$and:[{cardNumber: req.body.cardNumber}, {user: req.user._id}]})
+router.delete('/:cardNumber',protect,async (req,res)=>{
+    const card = await Card.findOne({$and:[{cardNumber: req.params.cardNumber}, {user: req.user._id}]})
     if(card){
         await card.remove()
         await User.findByIdAndUpdate(req.user._id,{cards:req.user.cards-1})
