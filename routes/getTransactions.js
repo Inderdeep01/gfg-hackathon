@@ -14,20 +14,25 @@ router.get('/',protect,async (req,res)=>{
         .limit(perPage).populate([
             {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
             {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
-            {path:'card',select:'cardNumber expiry cvv network'}
+            {path:'card',select:'cardNumber expiry cvv network purpose'}
         ])
     return res.status(200).json(txs)
 })
 
-router.get('/card',protect,async (req,res)=>{
-    const txs = await Tx.find({$and:[{from:req.user._id},{card:req.body._id}]}).sort({createdAt:-1})
+router.post('/card',protect,async (req,res)=>{
+    try {
+        const txs = await Tx.find({$and:[{from:req.user._id},{card:req.body._id}]}).sort({createdAt:-1})
         .skip((page-1)*perPage)
         .limit(perPage).populate([
             {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
             {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
-            {path:'card',select:'cardNumber expiry cvv network'}
+            {path:'card',select:'cardNumber expiry cvv network purpose'}
         ])
-    return res.status(200).json(txs)
+        return res.status(200).json(txs)
+    }
+    catch{
+        return res.status(500).json({message:'Internal Server Error'})
+    }
 })
 
 router.all('/',(req,res)=>{

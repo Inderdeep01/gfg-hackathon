@@ -11,6 +11,7 @@ const loginSchema=joi.object({
 })
 
 router.post('/',async(req,res)=>{
+    try {
         const {email,password}=req.body;
         var {error}=loginSchema.validate({email,password});
         if(error){
@@ -33,6 +34,10 @@ router.post('/',async(req,res)=>{
         else{
             res.status(401).json({message:'Invalid Credentials'});
         }
+    }
+    catch{
+        return res.status(500).json({message:'Internal Server Error'})
+    }
 })
 
 router.all('/',(req,res)=>{

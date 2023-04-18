@@ -21,7 +21,8 @@ transact route:
 */
 
 router.post('/',protect,card,gas,async (req,res)=>{
-    // decrypt the wallet to access the user credentials
+    try{
+        // decrypt the wallet to access the user credentials
     const wallet = await decryptWallet(req.user)
     // check the type of transaction
     const type = req.body.type // [forexTransfer,simpleTransfer,card,cardForex,forexPurchase]
@@ -97,6 +98,10 @@ router.post('/',protect,card,gas,async (req,res)=>{
     if(txObj.status)
         statusCode = 200
     return res.status(statusCode).json(txObj)
+    }
+    catch{
+        return res.status(500).json({message:'Internal Server Error'})
+    }
     
 })
 
