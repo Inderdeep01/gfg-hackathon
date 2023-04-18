@@ -26,6 +26,8 @@ router.get('/',protect,async (req,res)=>{
 
 router.post('/card',protect,async (req,res)=>{
     try {
+        const page = (req.query.page===NaN || req.query.page <= 0 ) ? 1 : req.query.page
+        const perPage = 20
         const txs = await Tx.find({$and:[{from:req.user._id},{card:req.body._id}]}).sort({createdAt:-1})
         .skip((page-1)*perPage)
         .limit(perPage).populate([
