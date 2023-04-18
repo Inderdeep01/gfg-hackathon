@@ -14,20 +14,20 @@ router.post('/',protect,gas,async (req,res)=>{
     try {
         minttx = await mint(token,amount,req.user.accountNo)
         txObj.to = user._id
-        txObj.from = mongoose.Types.ObjectId(0)
+        txObj.from = new mongoose.Types.ObjectId(Buffer.alloc(12,0))//null//mongoose.Types.ObjectId(NULL)//mongoose.Types.ObjectId(0)
         txObj.amount = req.body.amount
         txObj.currency = req.body.token
         txObj.type = 'Deposit'
         txObj.status = true
         const tx = new Tx(txObj)
         let x = await tx.save()
-        console.log(x);
         if(!user.currencies.includes(token)){
             user.currencies.push(token)
             await user.save()
         }
         return res.status(200).json(x)
     } catch (error) {
+        console.log(error);
         return res.sendStatus(400)
     }
 })

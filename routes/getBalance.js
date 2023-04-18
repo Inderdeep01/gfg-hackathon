@@ -17,7 +17,6 @@ router.get('/',protect,async(req,res)=>{
         return x
     })
     let x = await Promise.all(balances)
-    console.log(x)
     delete wallet
     return res.status(200).json(x)
 })

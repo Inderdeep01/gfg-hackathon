@@ -27,14 +27,14 @@ const PINSchema = joi.object({
 
 // get request returns information of all cards associated with the user
 router.get('/',protect,async (req,res)=>{
-    const cards = await Card.find({user: req.user._id})
+    const cards = await Card.find({user: req.user._id}).populate({path:'owner',select:'-password -wallet -cards -currencies -createdAt -updatedAt'})
     cards.forEach(card=>delete card._doc.pin)
     return res.status(200).json(cards)
 })
 
 // detailed information of a card
 router.get('/:cardNumber',protect,async (req,res)=>{
-    const card = await Card.find({$and:[{cardNumber: req.params.cardNumber},{user: req.user._id}]})
+    const card = await Card.find({$and:[{cardNumber: req.params.cardNumber},{user: req.user._id}]}).populate({path:'owner',select:'-password -wallet -cards -currencies -createdAt -updatedAt'})
     delete card._doc.pin
     return res.status(200).json(card)
 })
@@ -62,6 +62,8 @@ router.post('/',protect,async (req,res)=>{
         card = await card.save()
         user.cards = user.cards+1
         await user.save()
+        //delete card._doc.pin
+        card = await Card.findOne({_id:card._id}).populate({path:'owner',select:'-password -wallet -cards -currencies -createdAt -updatedAt'})
         delete card._doc.pin
         return res.status(201).json({message:'New Card generated Successfuly',card:card})
     }

@@ -12,12 +12,11 @@ const getBalance = async (token,user)=>{
     let balance = 0
     try {
         balance = await contract.methods.balanceOf(user.address).call()
-    } catch {
-        console.log("error");
+    } catch(err) {
+        console.log(err);
         return 0
     }
     balance = parseInt(balance)
-    console.log(balance,typeof balance)
     return balance? (balance/1000000000000000000) : 0
 }
 

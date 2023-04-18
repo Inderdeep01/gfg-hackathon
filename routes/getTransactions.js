@@ -12,6 +12,7 @@ router.get('/',protect,async (req,res)=>{
     const txs = await Tx.find({$or:[{from:req.user._id},{to:req.user._id}]}).sort({createdAt:-1})
         .skip((page-1)*perPage)
         .limit(perPage).populate([
+            {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
             {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
             {path:'card',select:'cardNumber expiry cvv network'}
         ])
@@ -22,6 +23,7 @@ router.get('/card',protect,async (req,res)=>{
     const txs = await Tx.find({$and:[{from:req.user._id},{card:req.body._id}]}).sort({createdAt:-1})
         .skip((page-1)*perPage)
         .limit(perPage).populate([
+            {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
             {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
             {path:'card',select:'cardNumber expiry cvv network'}
         ])

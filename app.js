@@ -49,7 +49,7 @@ app.use('/details',userDetails)
 
 
 app.use('/',(req,res)=>{
-    res.status(200).json({msg:'Welcome to home route!'})
+    res.status(200).json({msg:'Welcome to home route!',version:'1.0.0'})
 })
 
 app.use((req,res)=>{
