@@ -39,6 +39,7 @@ router.post('/',async(req,res)=>{
             lastName:user.lastName,
             email:user.email,
             accountNo:user.accountNo,
+            _id:user._id,
             token:await genToken(user)
         })
     }
