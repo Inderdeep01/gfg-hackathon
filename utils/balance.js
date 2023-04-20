@@ -16,8 +16,8 @@ const getBalance = async (token,user)=>{
         console.log(err);
         return 0
     }
-    balance = parseInt(balance)
-    return balance? (balance/1000000000000000000) : 0
+    balance = balance.slice(0, -18);
+    return balance? balance : 0
 }
 
 module.exports = getBalance
