@@ -40,6 +40,11 @@ const cardSchema = new mongoose.Schema({
         required: true,
         default: false
     },
+    isDeleted:{
+        type: Boolean,
+        required: true,
+        default: false
+    },
     limit: {
         type: Number,
         default: 100000

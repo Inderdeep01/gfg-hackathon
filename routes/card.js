@@ -28,7 +28,7 @@ const PINSchema = joi.object({
 // get request returns information of all cards associated with the user
 router.get('/',protect,async (req,res)=>{
     try {
-        const cards = await Card.find({user: req.user._id}).populate({path:'owner',select:'-password -wallet -cards -currencies -createdAt -updatedAt'})
+        const cards = await Card.find({$and:[{user: req.user._id},{isBlocked:false}]}).populate({path:'owner',select:'-password -wallet -cards -currencies -createdAt -updatedAt'})
         cards.forEach(card=>delete card._doc.pin)
         return res.status(200).json(cards)
     }
@@ -202,7 +202,9 @@ router.delete('/:cardNumber',protect,async (req,res)=>{
     try {
         const card = await Card.findOne({$and:[{cardNumber: req.params.cardNumber}, {user: req.user._id}]})
         if(card){
-            await card.remove()
+            card.isDeleted = true
+            card.isBlocked = true
+            await card.save()
             await User.findByIdAndUpdate(req.user._id,{cards:req.user.cards-1})
             return res.status(200).json({message:'Card Deleted!'})
         }
