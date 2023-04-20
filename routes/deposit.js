@@ -25,6 +25,8 @@ router.post('/',protect,gas,async (req,res)=>{
             user.currencies.push(token)
             await user.save()
         }
+        x._doc.from = null
+        x._doc.to = user
         return res.status(200).json(x)
     } catch (error) {
         console.log(error);
