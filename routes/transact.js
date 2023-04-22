@@ -99,7 +99,8 @@ router.post('/',protect,card,gas,async (req,res)=>{
         statusCode = 200
     return res.status(statusCode).json(txObj)
     }
-    catch{
+    catch(err){
+        console.log(err);
         return res.status(500).json({message:'Internal Server Error'})
     }
     

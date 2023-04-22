@@ -1,6 +1,7 @@
 const web3 = require('./web3')
 const Contracts = require('./contracts')
 const User = require('../models/userModel')
+const mongoose = require('mongoose')
 
 // This function is invoked when user intends to settle in same currency
 /*
@@ -19,7 +20,7 @@ const transfer = async(token,amount,sender,reciever,card=null)=>{
     //const account = web3.eth.accounts.privateKeyToAccount(sender.privateKey)
     const user = await User.findOne({accountNo:reciever})
     if(!user)
-        return {status:false,message:'Please check the account Number'}
+        return {status:false,message:'Please check the account Number',to:new mongoose.Types.ObjectId(Buffer.alloc(12,0))}
     const contract = Contracts.instances[token]
     const data = contract.methods.transfer(reciever,`${amount}000000000000000000`)
     const tx = {
