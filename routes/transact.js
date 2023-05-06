@@ -27,6 +27,7 @@ router.post('/',protect,card,gas,async (req,res)=>{
     // check the type of transaction
     const type = req.body.type // [forexTransfer,simpleTransfer,card,cardForex,forexPurchase]
     let txObj = {status:false}
+    let newTx
     //check if the settlement curency is same or different
     if(type && type==='simpleTransfer'){
         // refer to 'transfer' function [simpleTransfer]
@@ -37,7 +38,7 @@ router.post('/',protect,card,gas,async (req,res)=>{
         txObj.currency = req.body.destinationToken
         txObj.type = 'simpleTransfer'
         const tx = new Tx(txObj)
-        await tx.save()
+        newTx = await tx.save()
     }
     else if(type && type==='forexTransfer'){
         // refer to 'mint' function [forexTransfer]
@@ -47,7 +48,7 @@ router.post('/',protect,card,gas,async (req,res)=>{
         txObj.currency = req.body.destinationToken
         txObj.type = 'forexTransfer'
         const tx = new Tx(txObj)
-        await tx.save()
+        newTx = await tx.save()
     }
     else if(type && type==='card'){
         if(req.card.isBlocked)
@@ -64,7 +65,7 @@ router.post('/',protect,card,gas,async (req,res)=>{
             txObj.currency = req.body.destinationToken
             txObj.type = 'card'
             const tx = new Tx(txObj)
-            await tx.save()
+            newTx = await tx.save()
         }
     }
     else if(type && type==='cardForex'){
@@ -82,7 +83,7 @@ router.post('/',protect,card,gas,async (req,res)=>{
             txObj.currency = req.body.destinationToken
             txObj.type = 'cardForex'
             const tx = new Tx(txObj)
-            await tx.save()
+            newTx = await tx.save()
         }
     }
     else if(type && type==='forexPurchase'){
@@ -92,9 +93,14 @@ router.post('/',protect,card,gas,async (req,res)=>{
         txObj.currency = req.body.destinationToken
         txObj.type = 'forexPurchase'
         const tx = new Tx(txObj)
-        await tx.save()
+        newTx = await tx.save()
     }
     let statusCode = 500
+    txObj = await Tx.findById(newTx._id).populate([
+        {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
+        {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
+        {path:'card',select:'cardNumber expiry cvv network purpose'}
+    ])
     if(txObj.status)
         statusCode = 200
     return res.status(statusCode).json(txObj)

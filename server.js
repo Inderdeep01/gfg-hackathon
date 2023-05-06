@@ -1,4 +1,5 @@
 const http = require('http')
+const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const app = require('./app')
 
@@ -6,4 +7,22 @@ const server = http.createServer(app)
 
 const PORT = process.env.PORT
 
-server.listen(PORT)
+let instance = server.listen(PORT)
+const io = require('socket.io')(instance,{
+    pingTimeout: 60000,
+    cors:{
+        origin:'*'
+    }
+})
+
+io.on('connection',(socket)=>{
+    socket.on("setup",(token)=>{
+        const decoded = jwt.verify(token,process.env.JWT_SECRET)
+        let user = decoded.user
+        socket.join(user._id)
+        socket.emit("connected")
+    })
+    socket.on("transaction",(tx)=>{
+        socket.in(tx.to).emit("newTransactionRecieved",tx)
+    })
+})

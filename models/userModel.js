@@ -2,7 +2,7 @@ const mongoose =require('mongoose')
 
 const userSchema = new mongoose.Schema({
     firstName: mongoose.Schema.Types.String,
-    lastName: mongoose.Schema.Types.String,
+    lastName: {type:String, default:" "},
     email: mongoose.Schema.Types.String,
     password: mongoose.Schema.Types.String,
     wallet: Object,
