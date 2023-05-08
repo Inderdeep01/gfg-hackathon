@@ -15,7 +15,8 @@ router.get('/',protect,async (req,res)=>{
             .limit(perPage).populate([
                 {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
                 {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
-                {path:'card',select:'cardNumber expiry cvv network purpose'}
+                {path:'card',select:'cardNumber expiry cvv network purpose'},
+                {path:'merchant'}
             ])
         return res.status(200).json(txs)
         //res.status(200).json(txs)
@@ -24,33 +25,6 @@ router.get('/',protect,async (req,res)=>{
     catch(err){
         console.log(err)
         return res.status(500).json({message:'Internal Server Error'})
-    }
-})
-
-router.get('/sse',protect,(req,res)=>{
-    try{
-        //console.log(req.user)
-        const stream = Tx.watch()
-        stream.on('change',async (change)=>{
-            console.log(change)
-            console.log(change.fullDocument.from==req.user._id)
-            console.log(change.fullDocument.to==req.user._id)
-            if(change.fullDocument.from==req.user._id || change.fullDocument.to==req.user._id){
-                const poptx = await Tx.findById(change.fullDocument._id).populate(
-                    [
-                        {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
-                        {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
-                        {path:'card',select:'cardNumber expiry cvv network purpose'}
-                    ]
-                )
-                res.write(`data: ${JSON.stringify(poptx)}\n\n`)
-            }
-            //const tx = await Tx.findById(change.fullDocument._id)
-        })
-        res.setHeader('Content-Type','text/event-stream')
-    }
-    catch{
-        return res.sendStatus(500)
     }
 })
 
@@ -63,7 +37,8 @@ router.post('/card',protect,async (req,res)=>{
         .limit(perPage).populate([
             {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
             {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
-            {path:'card',select:'cardNumber expiry cvv network purpose'}
+            {path:'card',select:'cardNumber expiry cvv network purpose'},
+            {path:'merchant'}
         ])
         return res.status(200).json(txs)
     }

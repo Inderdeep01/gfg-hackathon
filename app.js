@@ -12,6 +12,8 @@ const userDetails = require('./routes/userDetail')
 const balance = require('./routes/getBalance')
 const Tx = require('./routes/getTransactions')
 const deposit = require('./routes/deposit')
+const verification = require('./routes/verifyUser')
+const verifyTx = require('./routes/verifyTx')
 
 const cors = require('cors')
 const bodyParser = require('body-parser');
@@ -45,7 +47,8 @@ app.use('/balance',balance)
 app.use('/getTx',Tx)
 app.use('/deposit',deposit)
 app.use('/details',userDetails)
-
+app.use('/verifyUser',verification)
+app.use('/verifyTx',verifyTx)
 
 
 app.use('/',(req,res)=>{

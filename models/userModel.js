@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema({
     currencies: {
         type: Array,
         default:['INR']
-    }
+    },
+    isVerified: {type: Boolean,default: false}
 },{
     timestamps:true
 })

@@ -16,6 +16,7 @@ const io = require('socket.io')(instance,{
 })
 
 io.on('connection',(socket)=>{
+    module.exports = socket
     socket.on("setup",(token)=>{
         const decoded = jwt.verify(token,process.env.JWT_SECRET)
         let user = decoded.user
@@ -23,6 +24,6 @@ io.on('connection',(socket)=>{
         socket.emit("connected")
     })
     socket.on("transaction",(tx)=>{
-        socket.in(tx.to).emit("newTransactionRecieved",tx)
+        socket.in(tx.to._id).emit("newTransactionRecieved",tx)
     })
 })

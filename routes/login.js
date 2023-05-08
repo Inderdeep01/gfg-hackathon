@@ -20,6 +20,9 @@ router.post('/',async(req,res)=>{
         }
         const user=await User.findOne({email});
 
+        // if user has not verified email yet
+        if(user && !user.isVerified)
+            return res.status(401).json({message:'Please verify your email first'})
         //if user exist and password matches
         if(user && await bcrypt.compare(password,user.password)){
             res.status(200).json({

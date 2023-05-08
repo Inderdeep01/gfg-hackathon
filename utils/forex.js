@@ -36,8 +36,9 @@ const forex = async (src,dst,amount,wallet,recipient,card=null)=>{
     }
     if(burntx.status){
         let minttx
+        const settledAmount = amount*rate | 0
         try{
-            minttx = await mint(dst,amount*rate | 0,recipient)
+            minttx = await mint(dst,settledAmount,recipient)
         }
         catch{
             return {status: false,message:"Unable to complete the transaction! Please check your input"}
@@ -47,7 +48,7 @@ const forex = async (src,dst,amount,wallet,recipient,card=null)=>{
                 user.currencies.push(dst)
                 await user.save()
             }
-            return {status:true,txReceipt: minttx,to:user._id,card:card}
+            return { status:true, txReceipt: minttx, to:user._id, card:card, settledAmount:settledAmount, settledCurrency:dst }
         }
         else
             return {status:false,to:user._id,card:card}

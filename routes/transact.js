@@ -4,87 +4,87 @@ const protect=require('../middleware/protect')
 const gas=require('../middleware/gas')
 const bcrypt = require('bcrypt')
 
-const card=require('../middleware/card');
 const mongoose = require('mongoose')
 
 
 const transfer = require('../utils/transfer')
 const forex = require('../utils/forex')
+const generateOTP = require('../utils/generateOTP')
+const {sendOTPMail} = require('../utils/mail')
 //const cardTransfer
 //const verifyCard = require('../utils/verifyCard')
 const decryptWallet = require('../utils/decryptWallet')
 const Tx = require('../models/transactionModel')
+const PendingTx = require('../models/pendingTxModel')
 
 /*
 transact route:
 -> This route is the main transaction route.
 */
 
-router.post('/',protect,card,gas,async (req,res)=>{
+router.post('/',protect,gas,async (req,res)=>{
     try{
         // decrypt the wallet to access the user credentials
     const wallet = await decryptWallet(req.user)
     // check the type of transaction
-    const type = req.body.type // [forexTransfer,simpleTransfer,card,cardForex,forexPurchase]
+    const type = req.body.type // [forexTransfer,simpleTransfer,forexPurchase]
     let txObj = {status:false}
     let newTx
     //check if the settlement curency is same or different
     if(type && type==='simpleTransfer'){
         // refer to 'transfer' function [simpleTransfer]
-        txObj = await transfer(req.body.destinationToken,req.body.amount,wallet,req.body.recipient)
+        const params = {
+            destinationToken: req.body.destinationToken,
+            amount: req.body.amount,
+            wallet: wallet,
+            recipient: req.body.recipient
+        }
+        txObj.params = params
+        const func = async ()=> await transfer(params.destinationToken,params.amount,params.wallet,params.recipient)
+        txObj.next = func.toString()
         txObj.from = req.user._id
         //txObj.to = req.body.recipient,
         txObj.amount = req.body.amount
         txObj.currency = req.body.destinationToken
         txObj.type = 'simpleTransfer'
-        const tx = new Tx(txObj)
-        newTx = await tx.save()
+        const {otp,hashed} = generateOTP()
+        try{
+            await sendOTPMail(req.user,otp)
+        }
+        catch(err){
+            console.log(err)
+            return res.status(400).json({message:'Invalid Email'})
+        }
+        const tx = await PendingTx.create({user:req.user._id,tx:txObj,otp:hashed})
+        return res.status(201).json({id:tx._id,message:'Verify by entering OTP'})
+        //newTx = await tx.save()
     }
     else if(type && type==='forexTransfer'){
         // refer to 'mint' function [forexTransfer]
-        txObj = await forex(req.body.sourceToken,req.body.destinationToken,req.body.amount,wallet,req.body.recipient)
+        const params = {
+            destinationToken: req.body.destinationToken,
+            sourceToken: req.body.sourceToken,
+            amount: req.body.amount,
+            wallet: wallet,
+            recipient: req.body.recipient
+        }
+        txObj.params = params
+        const func = async ()=> await forex(params.sourceToken,params.destinationToken,params.amount,params.wallet,params.recipient)
+        txObj.next = func.toString()
         txObj.from = req.user._id
         txObj.amount = req.body.amount
-        txObj.currency = req.body.destinationToken
+        txObj.currency = req.body.sourceToken
         txObj.type = 'forexTransfer'
-        const tx = new Tx(txObj)
-        newTx = await tx.save()
-    }
-    else if(type && type==='card'){
-        if(req.card.isBlocked)
-            txObj.message = 'This card is Blocked!'
-        else if(req.card.limit<req.body.amount)
-            txObj.message = 'Insufficient Card Limit'
-        else{
-            const pass = await bcrypt.compare(req.body.pin,req.card.pin)
-            if(!pass)
-                return res.status(400).json({message:'Incorrect PIN!'})
-            txObj = await transfer(req.body.destinationToken,req.body.amount,wallet,req.body.recipient,req.card._id)
-            txObj.from = req.user._id
-            txObj.amount = req.body.amount
-            txObj.currency = req.body.destinationToken
-            txObj.type = 'card'
-            const tx = new Tx(txObj)
-            newTx = await tx.save()
+        const {otp,hashed} = generateOTP()
+        try{
+            await sendOTPMail(req.user,otp)
         }
-    }
-    else if(type && type==='cardForex'){
-        if(req.card.isBlocked)
-            txObj.message = 'This card is Blocked!'
-        else if(req.card.limit<req.body.amount)
-            txObj.message = 'Insufficient Card Limit'
-        else{
-            const pass = await bcrypt.compare(req.body.pin,req.card.pin)
-            if(!pass)
-                return res.status(400).json({message:'Incorrect PIN!'})
-            txObj = await forex(req.body.sourceToken,req.body.destinationToken,req.body.amount,wallet,req.body.recipient,req.card._id)
-            txObj.from = req.user._id
-            txObj.amount = req.body.amount
-            txObj.currency = req.body.destinationToken
-            txObj.type = 'cardForex'
-            const tx = new Tx(txObj)
-            newTx = await tx.save()
+        catch(err){
+            console.log(err)
+            return res.status(400).json({message:'Invalid Email'})
         }
+        const tx = await PendingTx.create({user:req.user._id,tx:txObj,otp:hashed})
+        return res.status(201).json({id:tx._id,message:'Verify by entering OTP'})
     }
     else if(type && type==='forexPurchase'){
         txObj = await forex(req.body.sourceToken,req.body.destinationToken,req.body.amount,wallet,req.user.accountNo)

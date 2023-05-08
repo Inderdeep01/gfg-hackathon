@@ -1,10 +1,11 @@
 const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
-const genToken = require('../utils/token')
+//const genToken = require('../utils/token')
 const createWallet = require('../utils/createWallet')
-const User = require('../models/userModel');
-const joi=require('joi');
+const User = require('../models/userModel')
+const joi=require('joi')
+const {sendVerificationLink} = require('../utils/mail')
 
 const userSchema=joi.object({
     firstName:joi.string().min(3).required(),
@@ -34,13 +35,14 @@ router.post('/',async(req,res)=>{
         const user=await User.create({
             firstName,lastName,email,password,wallet,accountNo
         })
-        res.status(201).json({
+        await sendVerificationLink(user)
+        return res.status(201).json({
             firstName:user.firstName,
             lastName:user.lastName,
             email:user.email,
             accountNo:user.accountNo,
             _id:user._id,
-            token:await genToken(user)
+            //token:await genToken(user)
         })
     }
     catch{

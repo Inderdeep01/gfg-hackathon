@@ -8,8 +8,11 @@ const transactionSchema = new mongoose.Schema({
     },
     to: {
         type: mongoose.Types.ObjectId,
-        required: true,
         ref: 'User'
+    },
+    merchant: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Merchant'
     },
     card:{
         type: mongoose.Types.ObjectId,
