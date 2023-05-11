@@ -35,8 +35,8 @@ router.post('/',protect,async (req,res)=>{
             const tx = await Tx.create({...pendingTx.tx,...reciept})
             await PendingTx.findByIdAndDelete(id)
             const txObj = await Tx.findById(tx._id).populate([
-                {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
-                {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
+                {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt -walletpwd'},
+                {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt -walletpwd'},
             ])
             await sendTxInfoReciever(txObj)
             await sendTxInfoSender(txObj)

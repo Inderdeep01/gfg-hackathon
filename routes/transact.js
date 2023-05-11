@@ -100,8 +100,8 @@ router.post('/',protect,gas,async (req,res)=>{
     }
     let statusCode = 500
     txObj = await Tx.findById(newTx._id).populate([
-        {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
-        {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
+        {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt -walletpwd'},
+        {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt -walletpwd'},
         {path:'card',select:'cardNumber expiry cvv network purpose'}
     ])
     if(txObj.status)

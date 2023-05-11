@@ -19,8 +19,8 @@ io.on('connection',(socket)=>{
     module.exports = socket
     socket.on("setup",(token)=>{
         const decoded = jwt.verify(token,process.env.JWT_SECRET)
-        let user = decoded.user
-        socket.join(user._id)
+        let id = decoded.id
+        socket.join(id)
         socket.emit("connected")
     })
     socket.on("transaction",(tx)=>{
