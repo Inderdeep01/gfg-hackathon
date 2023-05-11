@@ -1,4 +1,4 @@
-const {numberToWords} = require('number-to-words')
+const numberToWords = require('number-to-words')
 function capitalizeWords(str) {
   return str.replace(/\b\w/g, (match) => match.toUpperCase());
 }
