@@ -1,6 +1,6 @@
 const mint = require('./mint')
 const burn = require('./burn')
-const getConversionRate = require('./getConversionRate')
+const {getConversionRate} = require('./getConversionRate')
 const User = require('../models/userModel')
 
 /* FOREX utility function

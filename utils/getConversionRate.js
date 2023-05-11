@@ -47,4 +47,6 @@ const getConversionRate = (src,dst)=>{
     return rate[`${src}_${dst}`]
 }
 
-module.exports = getConversionRate
+exports.list = rate
+
+exports.getConversionRate = getConversionRate

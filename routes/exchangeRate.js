@@ -1,12 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const getConversionRate = require('../utils/getConversionRate')
+const {list} = require('../utils/getConversionRate')
 
-router.post('/',(req,res)=>{
+router.get('/',(req,res)=>{
     try{
-        const {sourceToken,destinationToken} = req.body
-        const rate = getConversionRate(sourceToken,destinationToken)
-        return res.status(200).json({rate:rate})
+        return res.status(200).json({rate:list})
     }
     catch{
         return res.status(500).json({message:'Server Error',rate:'0'})
