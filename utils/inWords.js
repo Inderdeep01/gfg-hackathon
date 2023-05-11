@@ -1,38 +1,33 @@
-function inWords (n) {
-    if (n < 0)
-      return false;
-   var single_digit = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine']
-   var double_digit = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen']
-   var below_hundred = ['Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
-  if (n === 0) return 'Zero'
-  function translate(n) {
-    var word = ""
-    if (n < 10) {
-      word = single_digit[n] + ' '
-    }
-    else if (n < 20) {
-      word = double_digit[n - 10] + ' '
-    }
-    else if (n < 100) {
-      var rem = translate(n % 10)
-      word = below_hundred[(n - n % 10) / 10 - 2] + ' ' + rem
-    }
-    else if (n < 1000) {
-      word = single_digit[Math.trunc(n / 100)] + ' Hundred ' + translate(n % 100)
-    }
-    else if (n < 100000) {
-      word = translate(parseInt(n / 1000)).trim() + ' Thousand ' + translate(n % 1000)
-    }
-    else if (n < 10000000) {
-      word = translate(parseInt(n / 100000)).trim() + ' Lakh ' + translate(n % 100000)
-    }
-    else {
-      word = translate(parseInt(n / 10000000)).trim() + ' Crore ' + translate(n % 10000000)
-    }
-    return word
-  }
-   var result = translate(n) 
-  return result.trim()+' Only'
+const {numberToWords} = require('number-to-words')
+function capitalizeWords(str) {
+  return str.replace(/\b\w/g, (match) => match.toUpperCase());
+}
+function inWords(amount, currency) {
+
+  const currencyMap = {
+    INR: { name: 'Rupees', subunit: 'Paise' },
+    USD: { name: 'Dollars', subunit: 'Cents' },
+    CAD: { name: 'Canadian Dollars', subunit: 'Cents' },
+    EUR: { name: 'Euros', subunit: 'Cents' },
+    JPY: { name: 'Yen', subunit: 'Sen' },
+    RUB: { name: 'Rubles', subunit: 'Kopeks' },
+    AED: { name: 'Dirhams', subunit: 'Fils' },
+    // Add more currencies and their names/subunits as needed
+  };
+
+  const { name, subunit } = currencyMap[currency] || { name: currency, subunit: 'Subunit' };
+
+  const [whole, decimal = ''] = String(amount).split('.');
+
+  let result = numberToWords.toWords(parseInt(whole));
+  result +=  `${name}`;
+
+  if (decimal) {
+    const paddedDecimal = decimal.padEnd(2, '0');
+    const decimalInWords = numberToWords.toWords(parseInt(paddedDecimal));
+    result += ` and ${decimalInWords} ${subunit}` ;
   }
 
-exports.inWords = inWords
+  return capitalizeWords(result + ' Only');
+}
+module.exports = inWords

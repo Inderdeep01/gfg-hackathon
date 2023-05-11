@@ -1041,7 +1041,7 @@ exports.sendTxInfoSender = async (tx)=>{
                                                 <div style="margin-left: 20px;width:88%;text-align: start;margin-top: 30px;border-bottom: 1px solid lightgrey;padding-bottom: 20px;">
                                                     <div style="font-size: 20px;">Amount</div>
                                                     <div style="font-weight: 800;font-size: 30px;">${symbols[tx.currency]} ${tx.amount} <img src="https://i.ibb.co/926CdVS/greenverified.png" style="margin-left:10px;width:30px;"/></div>
-                                                    <div style="font-size: 15px;margin-top: 10px;">${tx.currency} ${inWords(tx.amount)}</div>
+                                                    <div style="font-size: 15px;margin-top: 10px;">${tx.currency} ${inWords(tx.amount,tx.currency)}</div>
                                                 </div>
                                                 <div style="margin-left: 20px;width:88%;text-align: start;margin-top: 20px;border-bottom: 1px solid lightgrey;padding-bottom: 20px;display: flex;">
                                                     <div style="flex-grow: 1;">
@@ -1325,7 +1325,7 @@ exports.sendTxInfoReciever = async (tx)=>{
                                                 <div style="margin-left: 20px;width:88%;text-align: start;margin-top: 30px;border-bottom: 1px solid lightgrey;padding-bottom: 20px;">
                                                     <div style="font-size: 20px;">Amount</div>
                                                     <div style="font-weight: 800;font-size: 30px;">${symbols[tx.settlement]} ${tx.settledAmount} <img src="https://i.ibb.co/926CdVS/greenverified.png" style="margin-left:10px;width:30px;"/></div>
-                                                    <div style="font-size: 15px;margin-top: 10px;">${tx.settlement} ${inWords(tx.settledAmount)}</div>
+                                                    <div style="font-size: 15px;margin-top: 10px;">${tx.settlement} ${inWords(tx.settledAmount,tx.settlement)}</div>
                                                 </div>
                                                 <div style="margin-left: 20px;width:88%;text-align: start;margin-top: 20px;border-bottom: 1px solid lightgrey;padding-bottom: 20px;display: flex;">
                                                     <div style="flex-grow: 1;">
