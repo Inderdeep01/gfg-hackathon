@@ -1,18 +1,30 @@
 const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
+const joi = require('joi')
 
-const Signup = require('../models/userModel')
+const User = require('../models/userModel')
 
-router.post('/',(req,res)=>{
+const userSchema=joi.object({
+    oldPwd:joi.string().min(8).required(),
+    newPwd:joi.string().min(8).required(),
+    id:joi.string().required(),
+})
+
+router.post('/',async (req,res)=>{
     const reqid = req.body.id
-    const oldPwd = req.body.oldPwd
-    const newPwd = req.body.newPwd
-    if(oldPwd===newPwd || oldPwd==='' || newPwd===''){
-        res.status(401).json({message:'Invalid Request'})
+    const {oldPwd,newPwd} = req.body
+    if(oldPwd===newPwd){
+        return res.status(401).json({message:'Invalid Request'})
     }
+    var {error} = await userSchema.validate({oldPwd,newPwd,reqid});
+    if(error){
+        error=error.details[0].message.replace( /\"/g, "" );
+        return res.status(400).json({message:error});
+    }
+    
     else{
-        Signup.find({id:reqid})
+        User.find({id:reqid})
         .then(result=>{
             if(result.length===0){
                 res.status(403).json({message:'Unauthorised'})
@@ -31,28 +43,28 @@ router.post('/',(req,res)=>{
                                         pwd:newPwdHash
                                     }
                                     console.log(updatedUser)
-                                    Signup.findOneAndUpdate({_id:user._id},updatedUser)
+                                    User.findOneAndUpdate({_id:user._id},updatedUser)
                                         .then(result=>res.status(200).json({message:'Password changed Successfuly!'}))
                                         .catch(err=>res.status(503).json({message:'Server Down'}))
                                 })
                         }
                         else{
-                            res.status(401).json({message:'Unauthorised'})
+                            return res.status(401).json({message:'Unauthorised'})
                         }
                     })
                     .catch(err=>{
                         try{
-                            res.status(503).json({message:'Server Down'})
+                            return res.status(503).json({message:'Server Down'})
                         }
-                        catch{}
+                        catch{ return }
                     })
             }
         })
         .catch(err=>{
             try{
-                res.status(500).json({info:'Internal Srver Error'})
+                return res.status(500).json({info:'Internal Srver Error'})
             }
-            catch{}
+            catch{ return }
         })
     }
 })

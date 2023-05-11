@@ -1,11 +1,14 @@
 const express = require('express')
 const router = express.Router()
 const protect = require('../middleware/protect')
+
 const PendingTx = require('../models/pendingTxModel')
 const Tx = require('../models/transactionModel')
+
 const hash = require('../utils/hash')
 const transfer = require('../utils/transfer')
 const forex = require('../utils/forex')
+const {sendTxInfoReciever,sendTxInfoSender} = require('../utils/mail')
 
 router.post('/',protect,async (req,res)=>{
     try{
@@ -14,7 +17,7 @@ router.post('/',protect,async (req,res)=>{
         if(!pendingTx)
             return res.status(400).json({message:'No such Transaction!'})
         let time = new Date()
-        time.setMinutes(time.getMinutes()-10) // change this after debugging ############################################
+        time.setMinutes(time.getMinutes()-10    ) // change this after debugging ############################################
         if(pendingTx && pendingTx.createdAt<time){
             await PendingTx.findByIdAndDelete(id)
             return res.status(400).json({message:'Transaction Timed Out!'})
@@ -27,13 +30,16 @@ router.post('/',protect,async (req,res)=>{
             //console.log(pendingTx.tx.next)
             const params = pendingTx.tx.params
             const reciept = await eval(pendingTx.tx.next)()
+            if(!reciept.status)
+                return res.status(400).json({message:reciept.message,reciept})
             const tx = await Tx.create({...pendingTx.tx,...reciept})
             await PendingTx.findByIdAndDelete(id)
             const txObj = await Tx.findById(tx._id).populate([
                 {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
                 {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt'},
-                {path:'card',select:'cardNumber expiry cvv network purpose'}
             ])
+            await sendTxInfoReciever(txObj)
+            await sendTxInfoSender(txObj)
             return res.status(200).json(txObj)
         }
     }

@@ -14,10 +14,11 @@ const Tx = require('./routes/getTransactions')
 const deposit = require('./routes/deposit')
 const verification = require('./routes/verifyUser')
 const verifyTx = require('./routes/verifyTx')
+const resetPass = require('./routes/resetPassword')
 
 const cors = require('cors')
-const bodyParser = require('body-parser');
-const authToken=require('./routes/authToken');
+const bodyParser = require('body-parser')
+const authToken=require('./routes/authToken')
 
 
 
@@ -49,6 +50,7 @@ app.use('/deposit',deposit)
 app.use('/details',userDetails)
 app.use('/verifyUser',verification)
 app.use('/verifyTx',verifyTx)
+app.use('/resetPass',resetPass)
 
 
 app.use('/',(req,res)=>{

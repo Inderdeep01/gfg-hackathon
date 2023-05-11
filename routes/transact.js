@@ -46,6 +46,7 @@ router.post('/',protect,gas,async (req,res)=>{
         //txObj.to = req.body.recipient,
         txObj.amount = req.body.amount
         txObj.currency = req.body.destinationToken
+        txObj.settlement = req.body.destinationToken
         txObj.type = 'simpleTransfer'
         const {otp,hashed} = generateOTP()
         try{
@@ -74,6 +75,7 @@ router.post('/',protect,gas,async (req,res)=>{
         txObj.from = req.user._id
         txObj.amount = req.body.amount
         txObj.currency = req.body.sourceToken
+        txObj.settlement = req.body.destinationToken
         txObj.type = 'forexTransfer'
         const {otp,hashed} = generateOTP()
         try{
@@ -90,7 +92,8 @@ router.post('/',protect,gas,async (req,res)=>{
         txObj = await forex(req.body.sourceToken,req.body.destinationToken,req.body.amount,wallet,req.user.accountNo)
         txObj.from = req.user._id
         txObj.amount = req.body.amount
-        txObj.currency = req.body.destinationToken
+        txObj.currency = req.body.sourceToken
+        txObj.settlement = req.body.destinationToken
         txObj.type = 'forexPurchase'
         const tx = new Tx(txObj)
         newTx = await tx.save()

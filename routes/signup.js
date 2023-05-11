@@ -35,7 +35,12 @@ router.post('/',async(req,res)=>{
         const user=await User.create({
             firstName,lastName,email,password,wallet,accountNo
         })
-        await sendVerificationLink(user)
+        try{
+            await sendVerificationLink(user)
+        }
+        catch{
+            return res.status(400).json({message:"Invalid Email"})
+        }
         return res.status(201).json({
             firstName:user.firstName,
             lastName:user.lastName,

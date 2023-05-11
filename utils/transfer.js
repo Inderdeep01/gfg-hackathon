@@ -20,7 +20,7 @@ const transfer = async(token,amount,sender,reciever,card=null)=>{
     //const account = web3.eth.accounts.privateKeyToAccount(sender.privateKey)
     const user = await User.findOne({accountNo:reciever})
     if(!user)
-        return {status:false,message:'Please check the account Number',to:new mongoose.Types.ObjectId(Buffer.alloc(12,0))}
+        return {status:false,message:'Please check the account Number',to:new mongoose.Types.ObjectId(Buffer.alloc(12,0)),settledAmount:'0'}
     const contract = Contracts.instances[token]
     const data = contract.methods.transfer(reciever,`${amount}000000000000000000`)
     const tx = {
@@ -38,11 +38,11 @@ const transfer = async(token,amount,sender,reciever,card=null)=>{
                 await user.save()
             }
             //console.log(txReceipt)
-            return {status:true,message:"Transaction Completed!",txReceipt:txReceipt,to:user._id,card:card}
+            return {status:true,message:"Transaction Completed!", txReceipt:txReceipt, to:user._id, card:card, settledAmount: amount}
         }
     }
     catch{
-        return {status:false,message:"Insufficient funds!",to:user._id,card:card}
+        return {status:false,message:"Insufficient funds!", to:user._id, card:card, settledAmount:'0' }
     }
 }
 module.exports = transfer

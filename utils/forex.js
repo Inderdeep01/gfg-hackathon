@@ -25,14 +25,14 @@ const User = require('../models/userModel')
 const forex = async (src,dst,amount,wallet,recipient,card=null)=>{
     const user = await User.findOne({accountNo:recipient})
     if(!user)
-        return {status:false,message:'Please check the account Number'}
+        return {status:false,message:'Please check the account Number', settledAmount:'0'}
     const rate = getConversionRate(src,dst)
     let burntx
     try{
         burntx = await burn(src,amount,wallet)
     }
     catch{
-        return {status:false,message:"Insufficient Funds!",to:user._id,card:card}
+        return {status:false,message:"Insufficient Funds!",to:user._id,card:card, settledAmount:'0'}
     }
     if(burntx.status){
         let minttx
@@ -48,13 +48,13 @@ const forex = async (src,dst,amount,wallet,recipient,card=null)=>{
                 user.currencies.push(dst)
                 await user.save()
             }
-            return { status:true, txReceipt: minttx, to:user._id, card:card, settledAmount:settledAmount, settledCurrency:dst }
+            return { status:true, txReceipt: minttx, to:user._id, card:card, settledAmount:settledAmount }
         }
         else
-            return {status:false,to:user._id,card:card}
+            return {status:false,to:user._id,card:card, settledAmount:'0'}
     }
     else
-        return {status: false,to:user._id,card:card}
+        return {status: false,to:user._id,card:card, settledAmount:'0'}
 }
 
 module.exports = forex

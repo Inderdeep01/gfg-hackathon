@@ -158,33 +158,6 @@ router.patch('/',protect,async (req,res)=>{
             await card.save()
             return res.status(200).json({message:'Card Limit Updated successfuly!'})
         }
-        else if(card && req.body.action==='addHolder'){
-            if(card.owner!=req.user._id)
-                return res.status(401).json({message:'Only owner can perform this action!'})
-            if(req.user.accountNo===newHolder)
-                return res.status(400).json({message:'You cannot add yourself as additional holder!'})
-            const user = await User.findOne({accountNo:newHolder})
-            let {error} = await PINSchema.validate({pin})
-            if(error){
-                error=error.details[0].message.replace( /\"/g, "" ).toUpperCase()
-                return res.status(400).json({message:error})
-            }
-            const matched = await bcrypt.compare(pin,card.pin)
-            if(!matched)
-                return res.status(400).json({message:'PIN mismatch!'})
-            if(user && card.user.includes(user._id))
-                return res.status(400).json({message:'Holder already added for this card'})
-            //const user = await User.findById(req.body.newHolder)
-            if(user && user.cards<5){
-                user.cards = user.cards+1
-                card.user.push(user._id)
-                await card.save()
-                await user.save()
-                return res.status(200).json({message:'Joint Holder added successfuly'})
-            }
-            else
-                return res.status(400).json({message:'Invalid Joint Card Holder!'})
-        }
         else if (card){
             return res.status(400).json({message:'Undefined Action'})
         }

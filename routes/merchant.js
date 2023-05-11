@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const card=require('../middleware/card');
+const card=require('../middleware/card')
+const socket = require('../server')
 
 const transfer = require('../utils/transfer')
 const forex = require('../utils/forex')
@@ -63,6 +64,7 @@ router.post('/',card, async (req,res)=>{
         ])
         if(txObj.status)
             statusCode = 200
+        await socket.in(txObj.from._id).emit('newTx',txObj)
         return res.status(statusCode).json(txObj)
     }
     catch(err){

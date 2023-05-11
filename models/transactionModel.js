@@ -25,9 +25,16 @@ const transactionSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    settledAmount: {
+        type: String,
+        required: true
+    },
     currency: {
         type: String,
         required: true
+    },
+    settlement: {
+        type: String
     },
     txReceipt: {
         type: Object
