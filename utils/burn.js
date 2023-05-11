@@ -14,7 +14,7 @@ const Contracts = require('./contracts')
 const burn = async(token,quantity,user)=>{
     //load the instance of the token contract
     const contract = Contracts.instances[token]
-    const data = contract.methods.burn(`${quantity}000000000000000000`)
+    const data = contract.methods.burn(web3.utils.toWei(quantity))
     const tx = {
         from: user.address,
         to: Contracts.addresses[token],

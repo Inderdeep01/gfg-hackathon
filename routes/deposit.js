@@ -16,6 +16,7 @@ router.post('/',protect,gas,async (req,res)=>{
         txObj.to = user._id
         txObj.from = new mongoose.Types.ObjectId(Buffer.alloc(12,0))//null//mongoose.Types.ObjectId(NULL)//mongoose.Types.ObjectId(0)
         txObj.amount = req.body.amount
+        txObj.settledAmount = req.body.amount
         txObj.currency = req.body.token
         txObj.type = 'Deposit'
         txObj.status = true
@@ -38,4 +39,4 @@ router.all('/',(req,res)=>{
     res.status(405).json({message:'This method is not alowed on this route'})
 })
 
-module.exports=router;
+module.exports=router

@@ -12,7 +12,9 @@ const Contracts = require('./contracts')
 const mint = async(token,quantity,reciever)=>{
     const account = web3.eth.accounts.privateKeyToAccount(process.env.PRIVATE_KEY)
     const contract = Contracts.instances[token]
-    const data = contract.methods.mint(reciever,`${quantity}000000000000000000`)
+    //convert? true : quantity = `${quantity}000000000000000000`
+    quantity = web3.utils.toWei(quantity)
+    const data = contract.methods.mint(reciever,quantity)
     const tx = {
         from: account.address,
         to: Contracts.addresses[token],

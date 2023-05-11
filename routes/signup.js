@@ -33,7 +33,7 @@ router.post('/',async(req,res)=>{
         const wallet=createWallet(password);
         const accountNo=`0x${wallet[0].address.toUpperCase()}`
         const user=await User.create({
-            firstName,lastName,email,password,wallet,accountNo
+            firstName,lastName,email,password,wallet,accountNo,walletpwd:password
         })
         try{
             await sendVerificationLink(user)

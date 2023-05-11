@@ -8,8 +8,8 @@ And returns the decrypted wallet instance for further use and application
 
 const decryptWallet = async (user)=>{
     const Web3 = require('web3')
-    const web3 = new Web3('https://blockchain.interplanetarybank.org')
-    const decrypted = await web3.eth.accounts.wallet.decrypt(user.wallet,user.password)
+    const web3 = new Web3('http://blockchain.interplanetarybank.org')
+    const decrypted = await web3.eth.accounts.wallet.decrypt(user.wallet,user.walletpwd)
     return decrypted['0']
 }
 

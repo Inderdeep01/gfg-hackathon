@@ -17,7 +17,7 @@ router.post('/',protect,async (req,res)=>{
         if(!pendingTx)
             return res.status(400).json({message:'No such Transaction!'})
         let time = new Date()
-        time.setMinutes(time.getMinutes()-10    ) // change this after debugging ############################################
+        time.setMinutes(time.getMinutes()-10) // change this after debugging ############################################
         if(pendingTx && pendingTx.createdAt<time){
             await PendingTx.findByIdAndDelete(id)
             return res.status(400).json({message:'Transaction Timed Out!'})
