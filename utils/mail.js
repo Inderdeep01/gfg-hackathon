@@ -1,7 +1,7 @@
 const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses")
 const crypto = require('crypto')
 const Verification = require('../models/verificationModel')
-const {inWords} = require('./inWords')
+const inWords = require('./inWords')
 
 // config options for SES
 const config = {
