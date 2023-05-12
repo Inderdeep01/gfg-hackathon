@@ -1,4 +1,5 @@
 const Contracts = require('./contracts')
+const web3 = require('./web3')
 
 /* getBalance utility function
 -> This function returns the amount of tokens held by a user
@@ -16,7 +17,7 @@ const getBalance = async (token,user)=>{
         console.log(err);
         return 0
     }
-    balance = balance.slice(0, -18);
+    balance = parseFloat(web3.utils.fromWei(balance)).toFixed(2)//balance.slice(0, -18);
     return balance? balance : 0
 }
 
