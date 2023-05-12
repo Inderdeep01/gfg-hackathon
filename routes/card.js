@@ -95,14 +95,11 @@ router.patch('/',protect,async (req,res)=>{
 
     try {
         const salt = await bcrypt.genSalt(10)
-        const {oldPin,newPin,cardNumber,newHolder,pin} = req.body
-        let card = await Card.find({$and:[{cardNumber: cardNumber,user: req.user._id}]})
+        const {oldPin,newPin,cardNumber} = req.body
+        let card = await Card.find({$and:[{cardNumber: cardNumber,owner: req.user._id}]})
         card = card[0]
         //console.log(card)
         if(card && req.body.action==='changePIN'){
-            //console.log(card,req.user,card.owner===req.user._id,card.owner==req.user._id)
-            if(card.owner!=req.user._id)
-                return res.status(401).json({message:'Only owner can perform this action!'})
             let {error} = await changePINSchema.validate({oldPin,newPin,cardNumber})
             if(error){
                 error=error.details[0].message.replace( /\"/g, "" ).toUpperCase()
@@ -123,8 +120,6 @@ router.patch('/',protect,async (req,res)=>{
                 return res.status(400).json({message:'Old PIN mismatch'})
         }
         else if(card && req.body.action==='block'){
-            if(card.owner!=req.user._id)
-                return res.status(401).json({message:'Only owner can perform this action!'})
             if(card.isBlocked)
                 return res.status(400).json({message:'Card Already Blocked!'})
             card.isBlocked = true
@@ -132,8 +127,6 @@ router.patch('/',protect,async (req,res)=>{
             return res.status(200).json({message:'Card Blocked successfuly'})
         }
         else if(card && req.body.action==='unblock'){
-            if(card.owner!=req.user._id)
-                return res.status(401).json({message:'Only owner can perform this action!'})
             if(!card.isBlocked)
                 return res.status(400).json({message:'Card Not Blocked!'})
             card.isBlocked = false
@@ -141,8 +134,6 @@ router.patch('/',protect,async (req,res)=>{
             return res.status(200).json({message:'Card Unblocked successfuly!'})
         }
         else if(card && req.body.action==='setLimit'){
-            if(card.owner!=req.user._id)
-                return res.status(401).json({message:'Only owner can perform this action!'})
             if(card.limit===req.body.limit)
                 return res.status(400).json({message:'Limit already set to the specified value'})
             card.limit = req.body.limit
@@ -150,8 +141,6 @@ router.patch('/',protect,async (req,res)=>{
             return res.status(200).json({message:'Card Limit Updated successfuly!'})
         }
         else if(card && req.body.action==='setInternationalLimit'){
-            if(card.owner!=req.user._id)
-                return res.status(401).json({message:'Only owner can perform this action!'})
             if(card.internationalLimit===req.body.internationalLimit)
                 return res.status(400).json({message:'Limit already set to the specified value'})
             card.internationalLimit = req.body.internationalLimit

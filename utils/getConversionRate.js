@@ -22,7 +22,7 @@ const rate = {
     INR_EUR: 0.011,
     INR_JPY: 1.64,
     INR_RUB: 0.94,
-    INR_USD: 0.12345678,
+    INR_USD: 0.012345678,
     EUR_AED: 4.01,
     EUR_CAD: 1.47,
     EUR_INR: 89.70,

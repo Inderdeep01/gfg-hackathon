@@ -5,7 +5,7 @@ const inWords = require('./inWords')
 
 // config options for SES
 const config = {
-  region:'us-east-1'
+  region:'ap-south-1'
 }
 const client = new SESClient(config)
 
