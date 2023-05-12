@@ -98,15 +98,19 @@ router.post('/',protect,gas,async (req,res)=>{
         const tx = new Tx(txObj)
         newTx = await tx.save()
     }
-    let statusCode = 500
-    txObj = await Tx.findById(newTx._id).populate([
+    let statusCode = 400
+    let message = txObj.message? txObj.message : ''
+    newTx = await Tx.findById(newTx._id).populate([
         {path:'from',select:'-password -wallet -cards -currencies -createdAt -updatedAt -walletpwd'},
         {path:'to',select:'-password -wallet -cards -currencies -createdAt -updatedAt -walletpwd'},
         {path:'card',select:'cardNumber expiry cvv network purpose'}
     ])
-    if(txObj.status)
+    if(txObj.status){
         statusCode = 200
-    return res.status(statusCode).json(txObj)
+        message = 'Tx Suuccess'
+    }
+    newTx._doc.message = message
+    return res.status(statusCode).json(newTx)
     }
     catch(err){
         console.log(err);
