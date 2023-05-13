@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const card=require('../middleware/card')
+const bcrypt = require('bcrypt')
 
 const transfer = require('../utils/transfer')
 const forex = require('../utils/forex')
