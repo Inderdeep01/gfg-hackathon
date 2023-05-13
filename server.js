@@ -26,4 +26,8 @@ io.on('connection',(socket)=>{
     socket.on("transaction",(tx)=>{
         socket.in(tx.to._id).emit("newTransactionRecieved",tx)
     })
+    socket.on("merchant",(id)=>{
+        socket.join(id);
+        socket.emit("connected")
+    })
 })
