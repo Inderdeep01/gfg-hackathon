@@ -30,7 +30,7 @@ router.post('/',card, async (req,res)=>{
                 const pass = await bcrypt.compare(req.body.pin,req.card.pin)
                 if(!pass)
                     return res.status(400).json({message:'Incorrect PIN!'})
-                txObj = await transfer(req.body.destinationToken,req.body.amount,wallet,req.merchant.accountNo,req.card._id)
+                txObj = await transfer(req.body.destinationToken,req.body.amount,wallet,req.merchant.accountNo,req.card._id,true)
                 txObj.from = req.card.owner._id
                 txObj.amount = req.body.amount
                 txObj.currency = req.body.destinationToken
@@ -68,6 +68,7 @@ router.post('/',card, async (req,res)=>{
         return res.status(statusCode).json(txObj)
     }
     catch(err){
+        console.log(err);
         return res.status(500).json({message:'Internal Server Error'})
     }
 })
