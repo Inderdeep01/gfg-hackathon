@@ -16,6 +16,7 @@ const verification = require('./routes/verifyUser')
 const verifyTx = require('./routes/verifyTx')
 const resetPass = require('./routes/resetPassword')
 const getRateList = require('./routes/exchangeRate')
+const merchant = require('./routes/merchant')
 
 const cors = require('cors')
 const bodyParser = require('body-parser')
@@ -53,6 +54,7 @@ app.use('/verifyUser',verification)
 app.use('/verifyTx',verifyTx)
 app.use('/resetPass',resetPass)
 app.use('/rate',getRateList)
+app.use('/merchant',merchant)
 
 
 app.use('/',(req,res)=>{
