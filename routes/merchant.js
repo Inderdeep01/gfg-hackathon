@@ -6,7 +6,6 @@ const transfer = require('../utils/transfer')
 const forex = require('../utils/forex')
 const decryptWallet = require('../utils/decryptWallet')
 const Tx = require('../models/transactionModel')
-const card = require('../middleware/card')
 
 /*
 merchant route:
