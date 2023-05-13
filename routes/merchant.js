@@ -24,6 +24,8 @@ router.post('/',card, async (req,res)=>{
                 txObj.message = 'This card is Blocked!'
             else if(req.card.limit<req.body.amount)
                 txObj.message = 'Insufficient Card Limit'
+            else if(req.body.cvv!==req.card.cvv || req.body.expiry!==req.card.expiryDate)
+                return res.status(400).json({message:'Invalid card credentials!'})
             else{
                 const pass = await bcrypt.compare(req.body.pin,req.card.pin)
                 if(!pass)
